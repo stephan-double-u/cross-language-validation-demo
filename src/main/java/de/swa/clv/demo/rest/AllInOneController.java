@@ -1,6 +1,5 @@
 package de.swa.clv.demo.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import de.swa.clv.ValidationRules;
 import de.swa.clv.demo.User;
 import de.swa.clv.demo.model.Accessory;
@@ -127,18 +126,10 @@ public class AllInOneController {
         );
     }
 
-    @GetMapping(value = "/category-test", produces = "application/json;charset=UTF-8")
-    public Category getCategoryAsObject() {
-        return Category.ENDOSCOPY;
-    }
-
     @PutMapping(value = "/user-permissions", produces = "application/json;charset=UTF-8")
     public void putUserPermissions(@RequestBody String[] permissions) {
         userMock.setPermissions(permissions);
         log.info("Received user permissions: " + permissions);
     }
 
-    public static void main(String[] args) {
-        System.out.println(new AllInOneController().getCategoryMapping());
-    }
 }
