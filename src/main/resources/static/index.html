@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>CLV Demo App</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style>
+        body {font-family: sans-serif; margin: 10px 50px;}
+        div { padding-bottom: 10px; }
+        label {display: inline-block; width: 162px;}
+        .err {padding-bottom: 20px; color: tomato; font-size: smaller;}
+        .mandatory-true::after {content: " *";}
+        .mandatory-false::after {content: "";}
+        table td {vertical-align: top;}
+        td {padding-right: 80px;}
+        input {width: 200px;}
+        .widthAuto {width: auto;}
+    </style>
+</head>
+<body>
+    <p>Choose roles/permissions/authorities for test user:
+        MANAGER <input id="perm1" name="MANAGER" type="checkbox" class="widthAuto" onchange="validate()">,
+        DecommissionAssets <input id="perm2" name="DecommissionAssets" type="checkbox" class="widthAuto" onchange="validate()"></p>
+    <hr/>
+    <p>Create / update medical article:</p>
+    <table>
+        <tr>
+        <tr>
+            <td>
+                <label for="id" style="color:darkgray">Id</label>
+                <input id="id" type="text" disabled style="color:darkgray">
+                <div class="err" id="idErr"></div>
+                <label id="nameLabel" for="name">Name</label>
+                <input id="name" type="text" onfocusout="validate()">
+                <div class="err" id="nameErr"></div>
+                <label id="numberLabel" for="number">Number</label>
+                <input id="number" type="text" onfocusout="validate()">
+                <div class="err" id="numberErr"></div>
+                <label id="statusLabel" for="status">Status</label>
+                <select id="status" style="width: 207px" onchange="validate()">
+                    <option></option>
+                </select>
+                <div class="err" id="statusErr"></div>
+                <label id="maintenanceIntervalMonthLabel" for="maintenanceIntervalMonth">Maintenance interval</label>
+                <input id="maintenanceIntervalMonth" type="text" placeholder="in month" onchange="validate()"
+                       oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');">
+                <div class="err" id="maintenanceIntervalMonthErr"></div>
+                <label id="maintenanceLastDateLabel" for="maintenanceLastDate">Last maintenance</label>
+                <input id="maintenanceLastDate" type="date" style="width:204px" onchange="validate()">
+                <div class="err" id="maintenanceLastDateErr"></div>
+                <label id="accessoriesLabel" style="width: 348px;">Accessories with amount</label>
+                <button id="addAccessoryButton">+</button>
+                <div class="err" id="accessoriesErr"></div>
+                <div id="accessories"></div>
+            </td>
+            <td>
+                <label for="lastModifiedOn" style="color:darkgray">Last modified on</label>
+                <input id="lastModifiedOn" type="text" disabled style="color:darkgray">
+                <div class="err" id="lastModifiedOnErr"></div>
+                <label id="categoryLabel" for="number">Category</label>
+                <select id="category" style="width: 207px" onchange="validate()">
+                    <option></option>
+                </select>
+                <div class="err" id="categoryErr"></div>
+                <label id="subCategoryLabel" for="number">Sub-Category</label>
+                <select id="subCategory" style="width: 207px" onchange="validate()">
+                    <option></option>
+                </select>
+                <div class="err" id="subCategoryErr"></div>
+                <label id="medicalSetLabel" for="medicalSet">Medical Set</label>
+                <input id="medicalSet" type="text" onfocusout="validate()">
+                <div class="err" id="medicalSetErr"></div>
+                <label id="everLeftWarehouseLabel" for="everLeftWarehouse">Ever left warehouse</label>
+                <input id="everLeftWarehouse" type="checkbox" class="widthAuto" onchange="validate()">
+                <div class="err" id="everLeftWarehouseErr"></div>
+                <label id="animalUseLabel" for="animalUse">Animal use</label>
+                <input id="animalUse" type="checkbox" class="widthAuto" onchange="validate()">
+                <div class="err" id="animalUseErr"></div>
+            </td>
+        </tr>
+    </table>
+    <button id="newButton" >New</button>
+    <button id="createButton" disabled>Create</button>
+    <button id="updateButton" disabled>Update</button>
+    <hr/>
+    <br/>
+    <button id="loadRulesButton">Load Validation Rules</button>&nbsp;&nbsp;&nbsp;
+    <button id="loadErrorMessagesButton">Load Error Message</button>&nbsp;&nbsp;&nbsp;
+    <button id="changeLastModifiedOnButton" title="By changing 'lastModifiedOn' timestamp">Simulate concurrent modification</button>
+    <div id="rules" style="color:darkgray; font-size: small;"></div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
