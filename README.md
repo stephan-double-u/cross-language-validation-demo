@@ -22,15 +22,8 @@ The frontend is a single page app that allows the creation and update of article
 - validates all rules if an input value changes when a new article is updated
 
 ## Maven
-### pom.xml
-    <dependency>
-      <groupId>de.swa</groupId>
-      <artifactId>cross-language-validation</artifactId>
-      <version>0.5.7</version>
-    </dependency>
-
 ### settings.xml
-Until this artifact is available on Maven Central, it can be downloaded by addinf this `server`to `settings.xml`.
+Until this artifact is available on Maven Central, it is downloaded by this `server` in `settings.xml`.
 
 Note: `<REMOVE>` must be removed from the public read access token:
 
@@ -43,7 +36,7 @@ Note: `<REMOVE>` must be removed from the public read access token:
     </servers>
 
 ## Usage
-Build and start the application with `mvn spring-boot:run`
+Build and start the application with `mvn spring-boot:run -s .m2/settings.xml` 
 
 Open [http://localhost:8080/](http://localhost:8080/)
 
