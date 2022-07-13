@@ -17,8 +17,9 @@ The frontend is a single page app that allows the creation and update of article
 [CLV ECMAScript 6 implementation](https://github.com/stephan-double-u/cross-language-validation-es6) to
 - identify mandatory properties in order to add a visual indicator (i.e. an '*') to the input field labels
 - identify immutable properties in order to disable these input fields
+- identify allowed values for select boxes in order to make these value selectable
 - validates mandatory and content rules if an input value changes when a new article is created
-- validates all rules if an input value changes when a new article is created
+- validates all rules if an input value changes when a new article is updated
 
 ## Maven
 ### pom.xml
@@ -58,7 +59,7 @@ There is a _strict separation_ between _human use_ and _animal use_ for all medi
 - The _animalUse_ property of an article must not be changed if
   - it is assigned to a medical set, or
   - it has been used once for animals (i.e. if _animalUse_ and _everLeftWarehouse_ options are set).
-### Other rules
+### Other potentially real-life rules
 - The _article name_ is a mandatory property.
   - It consists of 3 to 30 characters. Leading or trailing spaces are not allowed.
   - Article name must be unique.
@@ -66,15 +67,21 @@ There is a _strict separation_ between _human use_ and _animal use_ for all medi
 - The _article status_ is a mandatory property.
   - Possible status are: NEW, ACTIVE, INACTIVE, DECOMMISSIONED.
   - The initial status (during insert) is 'NEW'.
-  - These status transitions are allowed for all users
+  - These status transitions are allowed for all users:
     - NEW => ACTIVE
     - NEW => INACTIVE
     - ACTIVE => INACTIVE
     - INACTIVE => ACTIVE
-  - Users with the permission _DecommissionAssets_ may perform there transitions as well
+  - Users with the permission _DecommissionAssets_ may perform there transitions as well:
     - ACTIVE => DECOMMISSIONED
     - INACTIVE => DECOMMISSIONED
   - The status DECOMMISSIONED may no longer be changed.
+- The _article category_ is an optional property.
+  - Valid values are: _Endoscopy_ and _Imaging System_
+- The _article sub-category_ is mandatory if a category has been entered.
+  - Valid values depend on the selected category
+    - For _Endoscopy_ the valid sub-categories are: _Laryngoscope_,  _Sinuscope_, _Otoscopes_
+    - For _Imaging System_ the valid sub-categories are: _Camera Head_,  _Light Source_, _Video Processors_
 - The property _maintenanceIntervalMonth_ is mandatory if _maintenanceLastDate_ has been entered.
 - The property _maintenanceLastDate_ is mandatory if _maintenanceIntervalMonth_ has been entered.
 - Each article can be assigned several accessories in a certain quantity
