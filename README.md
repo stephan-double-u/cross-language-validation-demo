@@ -4,7 +4,8 @@ This is a simple demo application showing the use of the
 in a web application on the basis of a close-to-life example:
 
 > Let's say we work for a company that rents medical equipment. Each medical article may contain several accessories. 
-Articles are grouped in medical sets. The equipment is stored in warehouses and delivered to customers locations.
+Articles are grouped in medical sets. The equipment is stored in warehouses and delivered to customers locations (e.g.
+hospitals or animal clinics)
 
 The backend is a Spring Boot application that uses the 
 [CLV Java implementation](https://github.com/stephan-double-u/cross-language-validation-java) to
@@ -49,13 +50,14 @@ There is a _strict separation_ between _human use_ and _animal use_ for all medi
 ### Top priority rules
 - If an article has been delivered for the first time, it has to be flagged as such (property _everLeftWarehouse_).
   - This flag must never be reset.
-- The _animalUse_ property of an article must not be changed if
-  - it is assigned to a medical set, or
+- The _animalUse_ property of an article must _not be changed_ if
+  - it is assigned to a medical set
+- The _animalUse_ property of an article must _never be changed anymore_ if
   - it has been used once for animals (i.e. if _animalUse_ and _everLeftWarehouse_ options are set).
 ### Other potentially real-life rules
 - The _article name_ is a mandatory property.
   - It consists of 3 to 30 characters. Leading or trailing spaces are not allowed.
-  - Article name must be unique.
+  - Article names must be unique.
 - The _article number_ is a mandatory property.
 - The _article status_ is a mandatory property.
   - Possible status are: NEW, ACTIVE, INACTIVE, DECOMMISSIONED.
@@ -85,4 +87,5 @@ There is a _strict separation_ between _human use_ and _animal use_ for all medi
   - Each user can add up to 3 accessories.
   - A user with the role _MANAGER_ can add a 4th and 5th accessory.
   - Each user can update an article, although it has 4 or 5 accessories.
+- Concurrent updates of articles have to be prevented (by optimistic locking).
 
