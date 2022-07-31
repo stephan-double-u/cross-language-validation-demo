@@ -82,6 +82,7 @@ Open [http://localhost:8080/](http://localhost:8080/)
     - For _Imaging System_ the valid sub-categories are: _Camera Head_,  _Light Source_, _Video Processors_
 - The property _maintenanceIntervalMonth_ is mandatory if _maintenanceLastDate_ has been entered.
 - The property _maintenanceLastDate_ is mandatory if _maintenanceIntervalMonth_ has been entered.
+  - The date must not be in the future. 
 - Each article can be assigned several accessories in a certain quantity
   - The name of each accessory must correspond to the regular expression `"^[\\p{L}][\\p{L}\\p{N} ]*$"`.
   - The accessory names have to be distinct per article.
