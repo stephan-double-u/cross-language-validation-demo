@@ -3,9 +3,15 @@ This is a simple demo application showing the use of the
 [Cross Language Validation Framework](https://github.com/stephan-double-u/cross-language-validation-schema)
 in a web application on the basis of a close-to-life example:
 
-> Let's say we work for a company that rents medical equipment. Each medical article may contain several accessories. 
-Articles are grouped in medical sets. The equipment is stored in warehouses and delivered to customers locations (e.g.
-hospitals or animal clinics)
+> Let's say we work for a company that rents medical equipment.<br>
+> Each medical article may contain several accessories.<br>
+> Articles are grouped in medical sets.<br>
+> The equipment is stored in warehouses and delivered to customers locations (e.g.
+hospitals or animal clinics).
+
+BTW: There is a _strict separation_ between _human use_ and _animal use_ for all medical articles (for good reasons!):
+
+![HumanVsAnimalUse](HumanVsAnimalUse.png)
 
 The backend is a Spring Boot application that uses the 
 [CLV Java implementation](https://github.com/stephan-double-u/cross-language-validation-java) to
@@ -44,9 +50,6 @@ Open [http://localhost:8080/](http://localhost:8080/)
 [![CLVDemoApp](CLVDemoApp.png)](http://localhost:8080)
 
 ## Validation requirements for creating and updating articles
-There is a _strict separation_ between _human use_ and _animal use_ for all medical articles (for good reasons!):
-
-![HumanVsAnimalUse](HumanVsAnimalUse.png)
 ### Top priority rules
 - If an article has been delivered for the first time, it has to be flagged as such (property _everLeftWarehouse_).
   - This flag must never be reset.

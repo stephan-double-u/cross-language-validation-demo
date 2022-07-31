@@ -27,7 +27,7 @@ public enum Category {
     }
 
     public AsRecord asRecord() {
-            return new AsRecord(label, subCategories);
+        return new AsRecord(label, subCategories);
     }
 
     public record AsRecord(String label, List<SubCategory> subCategories) {

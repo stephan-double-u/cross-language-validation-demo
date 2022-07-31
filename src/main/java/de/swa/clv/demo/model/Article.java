@@ -9,23 +9,22 @@ import de.swa.clv.demo.validation.ValidationRulesGettable;
 import de.swa.clv.groups.ConditionsGroup;
 import de.swa.clv.groups.ConditionsTopGroup;
 
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
-import static de.swa.clv.demo.model.ArticleStatus.*;
+import static de.swa.clv.demo.model.Status.*;
 import static de.swa.clv.demo.model.Permission.DecommissionAssets;
 import static java.lang.Boolean.TRUE;
 
 public final class Article implements ValidationRulesGettable<Article> {
 
+    private static final String TRIMMED_3_TO_30_REGEX = "^(?! ).{3,30}(?<! )$";
+    public static final String EXAMPLE_UNICODE_PROPERTY_CLASSES_REGEX = "^[\\p{L}][\\p{L}\\p{N} ]*$";
     public static final int AMOUNT_MIN = 1;
     public static final int AMOUNT_MAX = 5;
     public static final int AMOUNT_SUM_MAX = 20;
-    // The CLV client implementation has to support all used regex features as well!
-    // Note: to transfer valid regex strings, the CLV Java implementation has to 'double' all backslashes during
-    // serialization: regEx.replaceAll("\\\\", "\\\\\\\\") 🙄
-    public static final String EXAMPLE_UNICODE_PROPERTY_CLASSES_REGEX = "^[\\p{L}][\\p{L}\\p{N} ]*$";
 
     /*
        Notes:
@@ -37,13 +36,16 @@ public final class Article implements ValidationRulesGettable<Article> {
            With the help of the method "doNotSerialize()" it can be prevented that such rules are serialized.
            Besides, it is also likely not necessary to validate the rule in the frontend, because the synchronization of
            the select boxes, which is done in a frontend anyway, ensures that no wrong sub-category is transferred.
-       (4) 'technical' rule for concurrent modification detection
+       (4) If rules with RegEx constraints should be validated, the CLV client implementation has to support all used
+           regex features as well, e.g. unicode property escapes like "\p{L}".
+           Remark: In order for the regular expressions to "survive" deserialization, the CLV Java implementation has to
+           duplicate all backslashes during serialization by: regEx.replaceAll("\\\\", "\\\\\\\\") 🙄
+       (5) 'technical' rule for concurrent modification detection
      */
     public static final ValidationRules<Article> RULES = new ValidationRules<>(Article.class);
-
     static {
         RULES.mandatory("name");
-        RULES.content("name", RegEx.any("^[^ ].{1,28}[^ ]$"));
+        RULES.content("name", RegEx.any(TRIMMED_3_TO_30_REGEX));
 
         RULES.mandatory("number");
 
@@ -70,6 +72,8 @@ public final class Article implements ValidationRulesGettable<Article> {
                 ConditionsGroup.AND(
                         Condition.of("maintenanceIntervalMonth", Equals.notNull()),
                         Condition.of("maintenanceLastDate", Equals.null_())));
+        RULES.content("maintenanceLastDate", Dates.past(0),
+                Condition.of("maintenanceLastDate", Equals.notNull()));
 
         RULES.content("category", Equals.any(Util.appendNull(Category.values()))); // better API needed?!
         RULES.mandatory("subCategory",
@@ -88,33 +92,33 @@ public final class Article implements ValidationRulesGettable<Article> {
                         ConditionsGroup.AND(
                                 Condition.of("medicalSet", Equals.notNull()))));
 
-        RULES.content("accessories[*].name", RegEx.any(EXAMPLE_UNICODE_PROPERTY_CLASSES_REGEX));
+        RULES.content("accessories[*].name", RegEx.any(EXAMPLE_UNICODE_PROPERTY_CLASSES_REGEX)); // (4)
         RULES.content("accessories[*].name#distinct", Equals.any(true));
         RULES.content("accessories[*].amount", Range.minMax(AMOUNT_MIN, AMOUNT_MAX));
         RULES.content("accessories[*].amount#sum", Range.max(AMOUNT_SUM_MAX));
 
         RULES.content("accessories", Size.max(3),
                 Condition.of("id", Equals.null_()));
-        RULES.content("accessories", Size.max(AMOUNT_MAX),
+        RULES.content("accessories", Size.max(5),
                 Permissions.any(Permission.MANAGER));
         RULES.update("accessories", Size.max(3),
-                Permissions.none(Permission.MANAGER),
+                //Permissions.none(Permission.MANAGER), // überflüssig!? testen ...
                 Condition.of("accessories", Size.max(3)));
         RULES.update("accessories", Size.max(4),
-                Permissions.none(Permission.MANAGER),
+                //Permissions.none(Permission.MANAGER),
                 Condition.of("accessories", Size.minMax(4, 4)));
-        RULES.update("accessories", Size.max(AMOUNT_MAX),
-                Permissions.none(Permission.MANAGER),
-                Condition.of("accessories", Size.minMax(AMOUNT_MAX, AMOUNT_MAX)));
+        RULES.update("accessories", Size.max(5),
+                //Permissions.none(Permission.MANAGER),
+                Condition.of("accessories", Size.minMax(5, 5)));
 
-        RULES.immutable("lastModifiedOn"); // (4)
+        RULES.immutable("lastModifiedOn"); // (5)
     }
 
     private Integer id;
     private Date lastModifiedOn;
     private String name;
     private String number;
-    private ArticleStatus status;
+    private Status status;
     private String medicalSet;
     private boolean animalUse;
     private boolean everLeftWarehouse;
@@ -151,11 +155,11 @@ public final class Article implements ValidationRulesGettable<Article> {
         this.number = number;
     }
 
-    public ArticleStatus getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(ArticleStatus status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 

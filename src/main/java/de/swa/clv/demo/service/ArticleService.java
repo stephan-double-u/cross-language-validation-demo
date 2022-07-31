@@ -50,8 +50,8 @@ public class ArticleService implements ValidationRulesCheck {
                 .filter(existingArticle -> !existingArticle.getName().equalsIgnoreCase(article.getName()) || !forUpdate)
                 .filter(existingArticle -> existingArticle.getName().equalsIgnoreCase(article.getName()))
                 .findFirst().ifPresent(ignore -> {
-                    String errorCode = VALIDATOR.getDefaultContentMessagePrefix() + "not-unique.article.name";
-                    throw new ValidationException("error", List.of(errorCode));
+                    throw new ValidationException("error", List.of(
+                            VALIDATOR.getDefaultContentMessagePrefix() + "not-unique.article.name"));
                 });
     }
 

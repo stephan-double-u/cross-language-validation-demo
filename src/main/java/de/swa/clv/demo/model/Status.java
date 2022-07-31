@@ -1,5 +1,5 @@
 package de.swa.clv.demo.model;
 
-public enum ArticleStatus {
+public enum Status {
     NEW, ACTIVE, INACTIVE, DECOMMISSIONED
 }

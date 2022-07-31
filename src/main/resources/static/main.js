@@ -279,16 +279,20 @@ const getValidationRules = async () => {
     const rules = await response.json();
     console.info("validation rules received: ", rules);
     setValidationRules(rules);
-    document.querySelector('#rules').innerHTML = "Loaded rules:<br>" + JSON.stringify(rules);
+    document.querySelector('#rules').innerHTML = "Loaded rules:<br><code>" + htmlEncode(JSON.stringify(rules)) + "</code>";
     validate();
+}
+
+function htmlEncode(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 const getValidationErrorCodeMap = async () => {
     const response = await fetch('http://localhost:8080/validation-error-messages');
     validationErrorCodeMap = await response.json();
     console.debug("validation error code map received: ", validationErrorCodeMap);
-    document.querySelector('#rules').innerHTML = "Error code to message mapping:<br>" +
-        JSON.stringify(validationErrorCodeMap);
+    document.querySelector('#rules').innerHTML = "Error code to message mapping:<br><code>" +
+        htmlEncode(JSON.stringify(validationErrorCodeMap)) + "</code>";
     validate();
 }
 

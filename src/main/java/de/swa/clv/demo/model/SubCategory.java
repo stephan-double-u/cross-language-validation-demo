@@ -16,7 +16,7 @@ public enum SubCategory {
     }
 
     public AsRecord asRecord() {
-        return new SubCategory.AsRecord(label);
+        return new AsRecord(label);
     }
 
     public record AsRecord(String label) {
