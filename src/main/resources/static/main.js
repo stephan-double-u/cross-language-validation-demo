@@ -116,7 +116,7 @@ function toForm(article) {
     document.querySelector("#everLeftWarehouse").checked = article.everLeftWarehouse;
     document.querySelector("#medicalSet").value = article.medicalSet;
     document.querySelector("#maintenanceIntervalMonth").value = article.maintenanceIntervalMonth;
-    document.querySelector("#maintenanceLastDate").value = article.maintenanceLastDate;
+    document.querySelector("#maintenanceNextDate").value = article.maintenanceNextDate;
     document.querySelector("#category").value = article.category;
     document.querySelector("#subCategory").value = article.subCategory;
     let i = 0;
@@ -147,8 +147,8 @@ function toModel(article) {
     article.medicalSet = medicalSetValue === "" ? null : medicalSetValue;
     const maintenanceIntervalMonthValue = document.querySelector("#maintenanceIntervalMonth").value;
     article.maintenanceIntervalMonth = maintenanceIntervalMonthValue === "" ? null : maintenanceIntervalMonthValue;
-    const maintenanceLastDateValue = document.querySelector("#maintenanceLastDate").value;
-    article.maintenanceLastDate = maintenanceLastDateValue === "" ? null : maintenanceLastDateValue;
+    const maintenanceNextDateValue = document.querySelector("#maintenanceNextDate").value;
+    article.maintenanceNextDate = maintenanceNextDateValue === "" ? null : maintenanceNextDateValue;
     const categoryValue = document.querySelector("#category").value;
     article.category = categoryValue === "" ? null : categoryValue;
     const subCategoryValue = document.querySelector("#subCategory").value;
@@ -168,9 +168,12 @@ function toModel(article) {
 function showErrorMessages(errors) {
     propertiesToCheck.forEach(prop => {
         const propErrCodes = errors.filter(e => e.indexOf(".article." + prop) >= 0);
-        //console.debug("validation errors for %s: %s", prop, propErrCodes);
         const propErrMsgs = propErrCodes.map(errCode => getErrorMessageForCode(errCode));
-        document.querySelector('#' + prop + 'Err').innerHTML = propErrMsgs.join('<br/>')
+        if (propErrMsgs.length >= 1 && showOnlyFirstPropError) {
+            document.querySelector('#' + prop + 'Err').innerHTML = propErrMsgs[0];
+        } else {
+            document.querySelector('#' + prop + 'Err').innerHTML = propErrMsgs.join('<br/>');
+        }
     });
 }
 
@@ -200,6 +203,10 @@ function simulateConcurrentModification() {
     savedArticle.lastModifiedOn = timestamp;
     editedArticle.lastModifiedOn = timestamp;
     toForm(savedArticle);
+}
+function toggleShowFirstOrAllErrorsFlag() {
+    showOnlyFirstPropError = !showOnlyFirstPropError;
+    validate();
 }
 
 const putPermissions = async () => {
@@ -308,6 +315,7 @@ const updateButton = document.querySelector('#updateButton');
 const addAccessoryButton = document.querySelector('#addAccessoryButton');
 const loadRulesButton = document.querySelector('#loadRulesButton');
 const loadErrorMessagesButton = document.querySelector('#loadErrorMessagesButton');
+const toggleShowFirstOrAllErrorsButton = document.querySelector('#toggleShowFirstOrAllErrorsButton');
 const changeLastModifiedOnButton = document.querySelector('#changeLastModifiedOnButton');
 
 newButton.addEventListener('click', resetForm);
@@ -316,6 +324,7 @@ updateButton.addEventListener('click', putArticle);
 addAccessoryButton.addEventListener('click', addAccessory);
 loadRulesButton.addEventListener('click', getValidationRules);
 loadErrorMessagesButton.addEventListener('click', getValidationErrorCodeMap);
+toggleShowFirstOrAllErrorsButton.addEventListener('click', toggleShowFirstOrAllErrorsFlag);
 changeLastModifiedOnButton.addEventListener('click', simulateConcurrentModification);
 
 const perm1 = document.querySelector('#perm1')
@@ -329,7 +338,7 @@ const accessoriesDiv = document.querySelector("#accessories")
 
 const emptyArticle = '{"id":null,"lastModifiedOn":null,"name":null,"number":null,"status":null,' +
     '"animalUse":null,"everLeftWarehouse":null,"medicalSet":null,"maintenanceIntervalMonth":null,' +
-    '"maintenanceLastDate":null,"category":null,"subCategory":null,"accessories":[]}';
+    '"maintenanceNextDate":null,"category":null,"subCategory":null,"accessories":[]}';
 const emptyArticle_ = { //or so?
     id: null,
     lastModifiedOn: null,
@@ -340,7 +349,7 @@ const emptyArticle_ = { //or so?
     everLeftWarehouse: null,
     medicalSet: null,
     maintenanceIntervalMonth: null,
-    maintenanceLastDate: null,
+    maintenanceNextDate: null,
     category: null,
     subCategory: null,
     accessories: []
@@ -350,10 +359,11 @@ let savedArticle = JSON.parse(emptyArticle);
 let editedArticle = JSON.parse(emptyArticle);
 
 const propertiesToCheck = ['name', 'number', 'status', 'animalUse', 'everLeftWarehouse', 'medicalSet', 'accessories',
-    'maintenanceLastDate', 'maintenanceIntervalMonth', 'category', 'subCategory']
+    'maintenanceNextDate', 'maintenanceIntervalMonth', 'category', 'subCategory']
 //const propertiesToCheck = ['category']
-let validationErrorCodeMap = {};
 let categoryMapping = {};
+let validationErrorCodeMap = {};
+let showOnlyFirstPropError = false;
 
 window.validate = validate;
 window.removeAccessory = removeAccessory;
