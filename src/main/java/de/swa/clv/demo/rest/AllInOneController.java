@@ -71,11 +71,15 @@ public class AllInOneController {
                 entry("mycode.for.article.status",
                         "Hey dude, you should know, that the status can not be reset to NEW"),
                 entry(DEFAULT_MANDATORY_MESSAGE_PREFIX + "article.maintenanceIntervalMonth",
-                        "The interval is required when the last maintenance date is specified."),
-                entry(DEFAULT_MANDATORY_MESSAGE_PREFIX + "article.maintenanceLastDate",
-                        "The last maintenance date is required when the interval is specified."),
-                entry(DEFAULT_CONTENT_MESSAGE_PREFIX + "date_past.article.maintenanceLastDate",
-                        "The last maintenance date must not be in the future."),
+                        "The interval is required when the next maintenance date is specified."),
+                entry(DEFAULT_MANDATORY_MESSAGE_PREFIX + "article.maintenanceNextDate",
+                        "The next maintenance date is required when the interval is specified."),
+                entry(DEFAULT_CONTENT_MESSAGE_PREFIX + "future_days.article.maintenanceNextDate",
+                        "The next maintenance date must be 1 to 365 days in the future."),
+                entry(DEFAULT_CONTENT_MESSAGE_PREFIX + "weekday_any.article.maintenanceNextDate",
+                        "Maintenance is not done on weekend days."),
+                entry(DEFAULT_CONTENT_MESSAGE_PREFIX + "equals_none.article.maintenanceNextDate",
+                        "Maintenance is not done on company vacations days in august."),
                 entry(DEFAULT_CONTENT_MESSAGE_PREFIX + "equals_any_ref.article.category",
                         "This category is not valid"),
                 entry(DEFAULT_MANDATORY_MESSAGE_PREFIX + "article.subCategory",
@@ -115,7 +119,6 @@ public class AllInOneController {
     @PutMapping(value = "/user-permissions", produces = "application/json;charset=UTF-8")
     public void putUserPermissions(@RequestBody String[] permissions) {
         userMock.setPermissions(permissions);
-        log.info("Received user permissions: " + permissions);
     }
 
 }

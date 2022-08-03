@@ -4,7 +4,6 @@ import de.swa.clv.demo.User;
 import de.swa.clv.demo.model.Accessory;
 import de.swa.clv.demo.model.Article;
 import de.swa.clv.demo.model.Category;
-import de.swa.clv.demo.model.SubCategory;
 import de.swa.clv.demo.validation.ValidationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +33,7 @@ class ArticleServiceTest {
     @Test
     void createArticle() {
         Article article = new Article();
-        article.setMaintenanceLastDate(LocalDate.MAX);
+        article.setMaintenanceNextDate(LocalDate.MAX);
         article.setCategory(Category.ENDOSCOPY);
         article.setSubCategory(Category.IMAGING_SYSTEM.getSubCategories().get(0));
         article.setAccessories(List.of(
@@ -57,7 +56,7 @@ class ArticleServiceTest {
         assertTrue(fieldErrors.contains("error.validation.mandatory.article.maintenanceIntervalMonth"));
         assertTrue(fieldErrors.contains("error.validation.content.regex_any.article.name"));
         assertTrue(fieldErrors.contains("error.validation.content.equals_any.article.status#initial"));
-        assertTrue(fieldErrors.contains("error.validation.content.date_past.article.maintenanceLastDate"));
+        assertTrue(fieldErrors.contains("error.validation.content.date_past.article.maintenanceNextDate"));
         assertTrue(fieldErrors.contains("error.validation.content.equals_any_ref.article.subCategory"));
         assertTrue(fieldErrors.contains("error.validation.content.regex_any.article.accessories[*].name"));
         assertTrue(fieldErrors.contains("error.validation.content.range.article.accessories[*].amount"));

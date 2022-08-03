@@ -44,9 +44,9 @@
                 <input id="maintenanceIntervalMonth" type="text" placeholder="in month" onchange="validate()"
                        oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');">
                 <div class="err" id="maintenanceIntervalMonthErr"></div>
-                <label id="maintenanceLastDateLabel" for="maintenanceLastDate">Last maintenance</label>
-                <input id="maintenanceLastDate" type="date" style="width:204px" onchange="validate()">
-                <div class="err" id="maintenanceLastDateErr"></div>
+                <label id="maintenanceNextDateLabel" for="maintenanceNextDate">Next maintenance</label>
+                <input id="maintenanceNextDate" type="date" style="width:204px" onchange="validate()">
+                <div class="err" id="maintenanceNextDateErr"></div>
                 <label id="accessoriesLabel" style="width: 348px;">Accessories with amount</label>
                 <button id="addAccessoryButton">+</button>
                 <div class="err" id="accessoriesErr"></div>
@@ -87,6 +87,7 @@
     <br/>
     <button id="loadRulesButton">Load Validation Rules</button>&nbsp;&nbsp;&nbsp;
     <button id="loadErrorMessagesButton">Load Error Message</button>&nbsp;&nbsp;&nbsp;
+    <button id="toggleShowFirstOrAllErrorsButton" title="Toggles 'ShowFirstOrAllErrors'">Toggle show first/all property error(s)</button>&nbsp;&nbsp;&nbsp;
     <button id="changeLastModifiedOnButton" title="By changing 'lastModifiedOn' timestamp">Simulate concurrent modification</button>
     <div id="rules" style="color:darkgray; font-size: small;"></div>
 

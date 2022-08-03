@@ -9,38 +9,40 @@ import de.swa.clv.demo.validation.ValidationRulesGettable;
 import de.swa.clv.groups.ConditionsGroup;
 import de.swa.clv.groups.ConditionsTopGroup;
 
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static de.swa.clv.demo.model.Status.*;
 import static de.swa.clv.demo.model.Permission.DecommissionAssets;
 import static java.lang.Boolean.TRUE;
+import static java.time.DayOfWeek.*;
 
 public final class Article implements ValidationRulesGettable<Article> {
 
     private static final String TRIMMED_3_TO_30_REGEX = "^(?! ).{3,30}(?<! )$";
     public static final String EXAMPLE_UNICODE_PROPERTY_CLASSES_REGEX = "^[\\p{L}][\\p{L}\\p{N} ]*$";
     public static final int AMOUNT_MIN = 1;
-    public static final int AMOUNT_MAX = 5;
+    public static final int AMOUNT_MAX = 10;
     public static final int AMOUNT_SUM_MAX = 20;
 
     /*
-       Notes:
-       (1) demo on how to add suffix to the error code
-       (2) demo on how to replace the error code by own code resp. own message
+       Remarks about the demo validation rules:
+       (1) example on how to add suffix to the error code
+       (2) example on how to replace the error code by own code (resp. own message)
            ".article.status" is needed here by frontend to assign the error message to the #statusErr element
-       (3) Enums are objects in Java and serialized as strings by default. Therefore, nested properties of enums like
+       (3) example on how multiple rules for the same property (here: "maintenanceNextDate") and the same type
+           (here: _content_) and different constraints can be defined
+       (4) Enums are objects in Java and serialized as strings by default. Therefore, nested properties of enums like
            "category.subCategories[*]" can't be validated in a Javascript frontend easily.
            With the help of the method "doNotSerialize()" it can be prevented that such rules are serialized.
            Besides, it is also likely not necessary to validate the rule in the frontend, because the synchronization of
            the select boxes, which is done in a frontend anyway, ensures that no wrong sub-category is transferred.
-       (4) If rules with RegEx constraints should be validated, the CLV client implementation has to support all used
+       (5) example for a complex rule the multiple conditions needs to be logically linked with AND _and_ OR.
+       (6) If rules with RegEx constraints should be validated, the CLV client implementation has to support all used
            regex features as well, e.g. unicode property escapes like "\p{L}".
-           Remark: In order for the regular expressions to "survive" deserialization, the CLV Java implementation has to
-           duplicate all backslashes during serialization by: regEx.replaceAll("\\\\", "\\\\\\\\") 🙄
-       (5) 'technical' rule for concurrent modification detection
+       (7) 'technical' rule for concurrent modification detection
      */
     public static final ValidationRules<Article> RULES = new ValidationRules<>(Article.class);
     static {
@@ -66,20 +68,22 @@ public final class Article implements ValidationRulesGettable<Article> {
 
         RULES.mandatory("maintenanceIntervalMonth",
                 ConditionsGroup.AND(
-                        Condition.of("maintenanceLastDate", Equals.notNull()),
+                        Condition.of("maintenanceNextDate", Equals.notNull()),
                         Condition.of("maintenanceIntervalMonth", Equals.null_())));
-        RULES.mandatory("maintenanceLastDate",
+        RULES.mandatory("maintenanceNextDate",
                 ConditionsGroup.AND(
                         Condition.of("maintenanceIntervalMonth", Equals.notNull()),
-                        Condition.of("maintenanceLastDate", Equals.null_())));
-        RULES.content("maintenanceLastDate", Dates.past(0),
-                Condition.of("maintenanceLastDate", Equals.notNull()));
+                        Condition.of("maintenanceNextDate", Equals.null_())));
+        RULES.content("maintenanceNextDate", Future.minMaxDays(1, 365),
+                Condition.of("maintenanceNextDate", Equals.notNull())); // (3)
+        RULES.content("maintenanceNextDate", Weekday.anyOrNull(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)); // (3)
+        RULES.content("maintenanceNextDate", Equals.none(getFakedCompanyVacationDates())); // (3)
 
         RULES.content("category", Equals.any(Util.appendNull(Category.values()))); // better API needed?!
         RULES.mandatory("subCategory",
                 Condition.of("category", Equals.notNull()));
         RULES.content("subCategory", Equals.anyRef("category.subCategories[*]", null))
-                .doNotSerialize(); // (3)
+                .doNotSerialize(); // (4)
 
         RULES.immutable("everLeftWarehouse",
                 Condition.of("everLeftWarehouse", Equals.any(TRUE)));
@@ -90,28 +94,25 @@ public final class Article implements ValidationRulesGettable<Article> {
                                 Condition.of("animalUse", Equals.any(TRUE)),
                                 Condition.of("everLeftWarehouse", Equals.any(TRUE))),
                         ConditionsGroup.AND(
-                                Condition.of("medicalSet", Equals.notNull()))));
+                                Condition.of("medicalSet", Equals.notNull())))); //(5)
 
-        RULES.content("accessories[*].name", RegEx.any(EXAMPLE_UNICODE_PROPERTY_CLASSES_REGEX)); // (4)
+        RULES.content("accessories", Size.max(3),
+                Condition.of("id", Equals.null_()));
+        RULES.content("accessories", Size.max(4),
+                Permissions.any(Permission.MANAGER));
+        RULES.update("accessories", Size.max(3),
+                Permissions.none(Permission.MANAGER),
+                Condition.of("accessories", Size.max(3)));
+        RULES.update("accessories", Size.max(4),
+                Permissions.none(Permission.MANAGER),
+                Condition.of("accessories", Size.minMax(4, 4)));
+
+        RULES.content("accessories[*].name", RegEx.any(EXAMPLE_UNICODE_PROPERTY_CLASSES_REGEX)); // (6)
         RULES.content("accessories[*].name#distinct", Equals.any(true));
         RULES.content("accessories[*].amount", Range.minMax(AMOUNT_MIN, AMOUNT_MAX));
         RULES.content("accessories[*].amount#sum", Range.max(AMOUNT_SUM_MAX));
 
-        RULES.content("accessories", Size.max(3),
-                Condition.of("id", Equals.null_()));
-        RULES.content("accessories", Size.max(5),
-                Permissions.any(Permission.MANAGER));
-        RULES.update("accessories", Size.max(3),
-                //Permissions.none(Permission.MANAGER), // überflüssig!? testen ...
-                Condition.of("accessories", Size.max(3)));
-        RULES.update("accessories", Size.max(4),
-                //Permissions.none(Permission.MANAGER),
-                Condition.of("accessories", Size.minMax(4, 4)));
-        RULES.update("accessories", Size.max(5),
-                //Permissions.none(Permission.MANAGER),
-                Condition.of("accessories", Size.minMax(5, 5)));
-
-        RULES.immutable("lastModifiedOn"); // (5)
+        RULES.immutable("lastModifiedOn"); // (7)
     }
 
     private Integer id;
@@ -122,7 +123,7 @@ public final class Article implements ValidationRulesGettable<Article> {
     private String medicalSet;
     private boolean animalUse;
     private boolean everLeftWarehouse;
-    private LocalDate maintenanceLastDate;
+    private LocalDate maintenanceNextDate;
     private Short maintenanceIntervalMonth;
     private Category category;
     private SubCategory subCategory;
@@ -203,12 +204,12 @@ public final class Article implements ValidationRulesGettable<Article> {
         this.accessories = accessories;
     }
 
-    public LocalDate getMaintenanceLastDate() {
-        return maintenanceLastDate;
+    public LocalDate getMaintenanceNextDate() {
+        return maintenanceNextDate;
     }
 
-    public void setMaintenanceLastDate(LocalDate maintenanceLastDate) {
-        this.maintenanceLastDate = maintenanceLastDate;
+    public void setMaintenanceNextDate(LocalDate maintenanceNextDate) {
+        this.maintenanceNextDate = maintenanceNextDate;
     }
 
     public Short getMaintenanceIntervalMonth() {
@@ -239,5 +240,19 @@ public final class Article implements ValidationRulesGettable<Article> {
     @Override
     public ValidationRules<Article> getValidationRules() {
         return RULES;
+    }
+
+    private static LocalDate[] getFakedCompanyVacationDates() {
+        LocalDate today = LocalDate.now();
+        List<LocalDate> augustDates = IntStream.rangeClosed(1, 31).boxed()
+                .map(i -> {
+                    LocalDate augustDate = LocalDate.of(today.getYear(), 8, i);
+                    if (!augustDate.isAfter(today)) {
+                        augustDate = LocalDate.of(today.getYear() + 1, 8, i);
+                    }
+                    return augustDate;
+                }).toList();
+        System.out.println(augustDates);
+        return augustDates.toArray(new LocalDate[0]);
     }
 }
