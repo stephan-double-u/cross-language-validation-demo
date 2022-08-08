@@ -1,7 +1,7 @@
 # CLV Demo Application
 This is a simple demo application showing the use of the
 [Cross Language Validation Framework](https://github.com/stephan-double-u/cross-language-validation-schema)
-(version 0.6) in a web application on the basis of a close-to-life example:
+(version 0.7) in a web application on the basis of a close-to-life example:
 
 > Let's say we work for a company that rents medical equipment.<br>
 > Each medical article may contain several accessories.<br>

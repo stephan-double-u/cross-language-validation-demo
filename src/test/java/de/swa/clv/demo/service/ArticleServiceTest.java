@@ -56,7 +56,7 @@ class ArticleServiceTest {
         assertTrue(fieldErrors.contains("error.validation.mandatory.article.maintenanceIntervalMonth"));
         assertTrue(fieldErrors.contains("error.validation.content.regex_any.article.name"));
         assertTrue(fieldErrors.contains("error.validation.content.equals_any.article.status#initial"));
-        assertTrue(fieldErrors.contains("error.validation.content.date_past.article.maintenanceNextDate"));
+        assertTrue(fieldErrors.contains("error.validation.content.future_days.article.maintenanceNextDate"));
         assertTrue(fieldErrors.contains("error.validation.content.equals_any_ref.article.subCategory"));
         assertTrue(fieldErrors.contains("error.validation.content.regex_any.article.accessories[*].name"));
         assertTrue(fieldErrors.contains("error.validation.content.range.article.accessories[*].amount"));

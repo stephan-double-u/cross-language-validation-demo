@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.swa.clv.UseType;
 import de.swa.clv.ValidationRules;
 import de.swa.clv.constraints.*;
-import de.swa.clv.demo.Util;
 import de.swa.clv.demo.validation.ValidationRulesGettable;
 import de.swa.clv.groups.ConditionsGroup;
 import de.swa.clv.groups.ConditionsTopGroup;
@@ -67,22 +66,22 @@ public final class Article implements ValidationRulesGettable<Article> {
                 .errorCodeControl(UseType.AS_REPLACEMENT, "mycode.for.article.status"); // (2)
 
         RULES.mandatory("maintenanceIntervalMonth",
-                ConditionsGroup.AND(
+                ConditionsGroup.OR(
                         Condition.of("maintenanceNextDate", Equals.notNull()),
-                        Condition.of("maintenanceIntervalMonth", Equals.null_())));
+                        Condition.of("maintenanceIntervalMonth", Equals.notNull())));
         RULES.mandatory("maintenanceNextDate",
-                ConditionsGroup.AND(
+                ConditionsGroup.OR(
                         Condition.of("maintenanceIntervalMonth", Equals.notNull()),
-                        Condition.of("maintenanceNextDate", Equals.null_())));
+                        Condition.of("maintenanceNextDate", Equals.notNull())));
         RULES.content("maintenanceNextDate", Future.minMaxDays(1, 365),
                 Condition.of("maintenanceNextDate", Equals.notNull())); // (3)
         RULES.content("maintenanceNextDate", Weekday.anyOrNull(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)); // (3)
         RULES.content("maintenanceNextDate", Equals.none(getFakedCompanyVacationDates())); // (3)
 
-        RULES.content("category", Equals.any(Util.appendNull(Category.values()))); // better API needed?!
+        RULES.content("category", Equals.anyOrNull(Category.values()));
         RULES.mandatory("subCategory",
                 Condition.of("category", Equals.notNull()));
-        RULES.content("subCategory", Equals.anyRef("category.subCategories[*]", null))
+        RULES.content("subCategory", Equals.anyRefOrNull("category.subCategories[*]"))
                 .doNotSerialize(); // (4)
 
         RULES.immutable("everLeftWarehouse",

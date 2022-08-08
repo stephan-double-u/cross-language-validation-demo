@@ -360,7 +360,7 @@ let editedArticle = JSON.parse(emptyArticle);
 
 const propertiesToCheck = ['name', 'number', 'status', 'animalUse', 'everLeftWarehouse', 'medicalSet', 'accessories',
     'maintenanceNextDate', 'maintenanceIntervalMonth', 'category', 'subCategory']
-//const propertiesToCheck = ['category']
+//const propertiesToCheck = ['maintenanceNextDate', 'maintenanceIntervalMonth']
 let categoryMapping = {};
 let validationErrorCodeMap = {};
 let showOnlyFirstPropError = false;
