@@ -88,7 +88,7 @@ Open [http://localhost:8080/](http://localhost:8080/)
 - Each article can be assigned several accessories in a certain quantity
   - The name of each accessory must correspond to the regular expression `"^[\\p{L}][\\p{L}\\p{N} ]*$"`.
   - The accessory names have to be distinct per article.
-  - The quantity of each accessory must be between 1 and 5.
+  - The quantity of each accessory must be between 1 and 10.
   - The sum of all quantities must not exceed 20.
   - Each user can add up to 3 accessories.
   - A user with the role _MANAGER_ can add a 4th accessory.
