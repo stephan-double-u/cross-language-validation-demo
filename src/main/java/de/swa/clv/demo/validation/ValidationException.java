@@ -1,7 +1,6 @@
 package de.swa.clv.demo.validation;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Abstract super class of all exceptions that need to transport field data to the frontend.

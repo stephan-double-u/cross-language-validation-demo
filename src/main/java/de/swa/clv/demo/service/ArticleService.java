@@ -17,7 +17,7 @@ import static de.swa.clv.demo.validation.ValidatorProvider.VALIDATOR;
 @Service
 public class ArticleService implements ValidationRulesCheck {
     AtomicInteger articleIdSeq = new AtomicInteger(0);
-    Map<Integer, Article> idArticleMap = new HashMap();
+    Map<Integer, Article> idArticleMap = new HashMap<>();
 
     public Article createArticle(Article newArticle, User user) {
         newArticle.setId(null); // just a precautionary measure

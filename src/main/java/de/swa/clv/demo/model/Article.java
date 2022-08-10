@@ -251,7 +251,6 @@ public final class Article implements ValidationRulesGettable<Article> {
                     }
                     return augustDate;
                 }).toList();
-        System.out.println(augustDates);
         return augustDates.toArray(new LocalDate[0]);
     }
 }

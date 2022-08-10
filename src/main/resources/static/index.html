@@ -14,12 +14,18 @@
         td {padding-right: 80px;}
         input {width: 200px;}
         .widthAuto {width: auto;}
+        .visible {visibility: visible;}
+        .not-visible {visibility: hidden;}
     </style>
 </head>
 <body>
     <p>Choose roles/permissions/authorities for test user:
-        MANAGER <input id="perm1" name="MANAGER" type="checkbox" class="widthAuto" onchange="validate()">,
-        DecommissionAssets <input id="perm2" name="DecommissionAssets" type="checkbox" class="widthAuto" onchange="validate()"></p>
+        MANAGER
+        <input id="perm1" name="MANAGER" type="checkbox" class="widthAuto" onchange="validate()"
+               title="This role is needed to add 4th accessory">,
+        DecommissionAssets
+        <input id="perm2" name="DecommissionAssets" type="checkbox" class="widthAuto" onchange="validate()"
+               title="This permission is needed to decommission an article"></p>
     <hr/>
     <p>Create / update medical article:</p>
     <table>
@@ -56,12 +62,12 @@
                 <label for="lastModifiedOn" style="color:darkgray">Last modified on</label>
                 <input id="lastModifiedOn" type="text" disabled style="color:darkgray">
                 <div class="err" id="lastModifiedOnErr"></div>
-                <label id="categoryLabel" for="number">Category</label>
+                <label id="categoryLabel" for="category">Category</label>
                 <select id="category" style="width: 207px" onchange="validate()">
                     <option></option>
                 </select>
                 <div class="err" id="categoryErr"></div>
-                <label id="subCategoryLabel" for="number">Sub-Category</label>
+                <label id="subCategoryLabel" for="subCategory">Sub-Category</label>
                 <select id="subCategory" style="width: 207px" onchange="validate()">
                     <option></option>
                 </select>
@@ -75,19 +81,19 @@
                 <label id="animalUseLabel" for="animalUse">Animal use</label>
                 <input id="animalUse" type="checkbox" class="widthAuto" onchange="validate()">
                 <div class="err" id="animalUseErr"></div>
+                <img class="not-visible" id="animalUseImg" src="AnimalUse.png" alt="Animal use">
             </td>
         </tr>
     </table>
-    <button id="newButton" >New</button>
+    <button id="newButton">New</button>
     <button id="createButton" disabled>Create</button>
     <button id="updateButton" disabled>Update</button>
     <br/>
     <br/>
     <hr/>
-    <br/>
-    <button id="loadRulesButton">Load Validation Rules</button>&nbsp;&nbsp;&nbsp;
-    <button id="loadErrorMessagesButton">Load Error Message</button>&nbsp;&nbsp;&nbsp;
-    <button id="toggleShowFirstOrAllErrorsButton" title="Toggles 'ShowFirstOrAllErrors'">Toggle show first/all property error(s)</button>&nbsp;&nbsp;&nbsp;
+    <button id="loadRulesButton" title="Gets rules as JSON from backend">Load Validation Rules</button>&nbsp;&nbsp;&nbsp;
+    <button id="loadErrorMessagesButton" title="Gets error code to message mapping from backend">Load Error Message</button>&nbsp;&nbsp;&nbsp;
+    <button id="toggleShowFirstOrAllErrorsButton">Toggle show first/all property error(s)</button>&nbsp;&nbsp;&nbsp;
     <button id="changeLastModifiedOnButton" title="By changing 'lastModifiedOn' timestamp">Simulate concurrent modification</button>
     <div id="rules" style="color:darkgray; font-size: small;"></div>
 

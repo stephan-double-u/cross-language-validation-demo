@@ -6,9 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
-
-import static java.util.stream.Collectors.groupingBy;
 
 @SuppressWarnings("squid:S1214")
 public interface ValidationRulesCheck {
@@ -20,7 +17,7 @@ public interface ValidationRulesCheck {
      *
          * @param object the object against which the rules are checked
      */
-    default void requireValidationRulesPass(ValidationRulesGettable<? extends Object> object, String[] permissions) {
+    default void requireValidationRulesPass(ValidationRulesGettable<?> object, String[] permissions) {
         ValidationRules<?> rules = object.getValidationRules();
         UserPermissions userPerms = UserPermissions.of(permissions);
         List<String> errors = ValidatorProvider.VALIDATOR.validateMandatoryRules(object, userPerms, rules);
@@ -37,8 +34,8 @@ public interface ValidationRulesCheck {
      * @param editedObject  the edited object against which the rules are checked
      * @param currentObject the current object against which the immutable and update rules are checked
      */
-    default void requireValidationRulesPass(ValidationRulesGettable<? extends Object> editedObject,
-            ValidationRulesGettable<? extends Object> currentObject, String[] permissions) {
+    default void requireValidationRulesPass(ValidationRulesGettable<?> editedObject,
+            ValidationRulesGettable<?> currentObject, String[] permissions) {
         ValidationRules<?> rules = currentObject.getValidationRules();
         UserPermissions userPerms = UserPermissions.of(permissions);
         List<String> errors = ValidatorProvider.VALIDATOR.validateMandatoryRules(editedObject, userPerms, rules);

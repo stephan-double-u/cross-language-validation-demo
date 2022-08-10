@@ -95,3 +95,19 @@ Open [http://localhost:8080/](http://localhost:8080/)
   - Each user can update an article, although it has 4 accessories.
 - Concurrent updates of articles have to be prevented (by optimistic locking).
 
+## Implementation notes
+### General
+- The demo app does not persist the articles, i.e. a restart will discard all created articles.
+
+### Main code points
+- Definition of rules:
+  - de.swa.clv.demo.model.Article
+- Calling the backend validation:
+  - de.swa.clv.demo.service.ArticleService
+  - de.swa.clv.demo.validation.ValidationRulesCheck
+- Testing all rule property names, types and validation errors is a breeze:
+  - de.swa.clv.demo.service.ArticleServiceTest
+- Serializing validation rules via GET /validation-rules endpoint:
+  - de.swa.clv.demo.rest.AllInOneController#getValidationRules
+- CLV ES6 usage in frontend:
+  - cross-language-validation-demo/src/main/resources/static/main.js

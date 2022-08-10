@@ -6,10 +6,13 @@ import {
 function resetForm() {
     adjustFormMandatory(newArticle);
     adjustFormImmutable(newArticle);
-    showErrorMessages([]);
+    adjustSelectBoxes(newArticle);
     toForm(newArticle);
+    toModel(savedArticle);
     createButton.disabled = false;
     updateButton.disabled = true;
+    changeLastModifiedOnButton.disabled = true;
+    validate();
 }
 
 function adjustFormMandatory(article) {
@@ -34,6 +37,7 @@ function adjustFormImmutable(article) {
 function adjustSelectBoxes(article) {
     adjustStatusBox(article);
     adjustCategoryBox(article);
+    toModel(editedArticle);
 }
 
 function adjustStatusBox(article) {
@@ -91,9 +95,9 @@ function adjustSubCategoryBox(selectedCategory) {
 function validate() {
     const forUpdate = !updateButton.disabled;
     console.debug("validate for %s with user perms %s", forUpdate,  JSON.stringify(userPerms));
-    adjustSelectBoxes(editedArticle);  // or savedArticle??
     toModel(editedArticle);
     adjustFormMandatory(editedArticle);
+    adjustSelectBoxes(savedArticle);
 
     const errors = validateMandatoryRules("article", editedArticle, userPerms);
     errors.push(...validateContentRules("article", editedArticle, userPerms));
@@ -202,7 +206,7 @@ function simulateConcurrentModification() {
     const timestamp = new Date().toJSON();
     savedArticle.lastModifiedOn = timestamp;
     editedArticle.lastModifiedOn = timestamp;
-    toForm(savedArticle);
+    toForm(editedArticle);
 }
 function toggleShowFirstOrAllErrorsFlag() {
     showOnlyFirstPropError = !showOnlyFirstPropError;
@@ -225,11 +229,11 @@ const putPermissions = async () => {
 }
 
 const postArticle = async () => {
-    toModel(savedArticle);
-    console.info("postArticle: %s", JSON.stringify(savedArticle));
+    toModel(editedArticle);
+    console.info("postArticle: %s", JSON.stringify(editedArticle));
     const response = await fetch('http://localhost:8080/article', {
         method: 'POST',
-        body: JSON.stringify(savedArticle),
+        body: JSON.stringify(editedArticle),
         headers: {
             'Content-Type': 'application/json'
         }
@@ -243,11 +247,12 @@ const postArticle = async () => {
         validate();
         createButton.disabled = true;
         updateButton.disabled = false;
+        changeLastModifiedOnButton.disabled = false;
     } else if (response.status === 400) {
         console.info("postArticle 400: validation errors: %s", responseJson);
         showErrorMessages(responseJson);
     } else {
-        console.info("postArticle: should not happen: %s", response.status);
+        console.error("postArticle: should not happen: %s", response.status);
     }
 }
 
@@ -277,14 +282,13 @@ const putArticle = async () => {
                 "Reload the article (not implemented in demo app).")
         }
     } else {
-        console.info("putArticle: should not happen: %s", response.status);
+        console.error("putArticle: should not happen: %s", response.status);
     }
 }
 
 const getValidationRules = async () => {
     const response = await fetch('http://localhost:8080/validation-rules');
     const rules = await response.json();
-    console.info("validation rules received: ", rules);
     setValidationRules(rules);
     document.querySelector('#rules').innerHTML = "Loaded rules:<br><code>" + htmlEncode(JSON.stringify(rules)) + "</code>";
     validate();
@@ -297,7 +301,6 @@ function htmlEncode(str) {
 const getValidationErrorCodeMap = async () => {
     const response = await fetch('http://localhost:8080/validation-error-messages');
     validationErrorCodeMap = await response.json();
-    console.debug("validation error code map received: ", validationErrorCodeMap);
     document.querySelector('#rules').innerHTML = "Error code to message mapping:<br><code>" +
         htmlEncode(JSON.stringify(validationErrorCodeMap)) + "</code>";
     validate();
@@ -306,7 +309,6 @@ const getValidationErrorCodeMap = async () => {
 const getCategoryMapping = async () => {
     const response = await fetch('http://localhost:8080/category-mapping');
     categoryMapping = await response.json();
-    console.info("category-mapping received: ", categoryMapping);
 }
 
 const newButton = document.querySelector('#newButton');
@@ -334,26 +336,22 @@ const userPerms = [];
 perm1.addEventListener('change', putPermissions);
 perm2.addEventListener('change', putPermissions);
 
+function toggleAnimalUseImg() {
+    if (animalUse.checked) {
+        document.querySelector('#animalUseImg').className = "visible";
+    } else {
+        document.querySelector('#animalUseImg').className = "not-visible";
+    }
+}
+
+const animalUse = document.querySelector('#animalUse');
+animalUse.addEventListener('change', toggleAnimalUseImg);
+
 const accessoriesDiv = document.querySelector("#accessories")
 
 const emptyArticle = '{"id":null,"lastModifiedOn":null,"name":null,"number":null,"status":null,' +
     '"animalUse":null,"everLeftWarehouse":null,"medicalSet":null,"maintenanceIntervalMonth":null,' +
     '"maintenanceNextDate":null,"category":null,"subCategory":null,"accessories":[]}';
-const emptyArticle_ = { //or so?
-    id: null,
-    lastModifiedOn: null,
-    name: null,
-    number: null,
-    status: null,
-    animalUse: null,
-    everLeftWarehouse: null,
-    medicalSet: null,
-    maintenanceIntervalMonth: null,
-    maintenanceNextDate: null,
-    category: null,
-    subCategory: null,
-    accessories: []
-};
 let newArticle = JSON.parse(emptyArticle);
 let savedArticle = JSON.parse(emptyArticle);
 let editedArticle = JSON.parse(emptyArticle);

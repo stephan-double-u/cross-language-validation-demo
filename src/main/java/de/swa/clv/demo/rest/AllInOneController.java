@@ -7,8 +7,6 @@ import de.swa.clv.demo.model.Article;
 import de.swa.clv.demo.model.Category;
 import de.swa.clv.demo.model.SubCategory;
 import de.swa.clv.demo.service.ArticleService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +19,6 @@ import static java.util.Map.entry;
 
 @RestController
 public class AllInOneController {
-
-    private final Logger log = LoggerFactory.getLogger(AllInOneController.class);
 
     private static final String DEFAULT_MANDATORY_MESSAGE_PREFIX = VALIDATOR.getDefaultMandatoryMessagePrefix();
     private static final String DEFAULT_CONTENT_MESSAGE_PREFIX = VALIDATOR.getDefaultContentMessagePrefix();
@@ -57,7 +53,7 @@ public class AllInOneController {
                 entry(DEFAULT_MANDATORY_MESSAGE_PREFIX + "article.name",
                         "The article name is a mandatory entry."),
                 entry(DEFAULT_CONTENT_MESSAGE_PREFIX + "regex_any.article.name",
-                        "The name needs to be 3 to 30 characters long (no leading or trailing spaces)."),
+                        "A name is 3 to 30 characters long (w/o surrounding blanks)."),
                 entry(DEFAULT_CONTENT_MESSAGE_PREFIX + "not-unique.article.name",
                         "An article with that name already exist."),
                 entry(DEFAULT_MANDATORY_MESSAGE_PREFIX + "article.number",

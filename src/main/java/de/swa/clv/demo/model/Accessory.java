@@ -1,12 +1,8 @@
 package de.swa.clv.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.swa.clv.ValidationRules;
 import de.swa.clv.demo.validation.ValidationRulesGettable;
-
-import java.util.Date;
-import java.util.Objects;
 
 public class Accessory implements ValidationRulesGettable<Accessory> {
 
