@@ -9,6 +9,7 @@ function resetForm() {
     adjustSelectBoxes(newArticle);
     toForm(newArticle);
     toModel(savedArticle);
+    toggleAnimalUseImg();
     createButton.disabled = false;
     updateButton.disabled = true;
     changeLastModifiedOnButton.disabled = true;
@@ -311,6 +312,14 @@ const getCategoryMapping = async () => {
     categoryMapping = await response.json();
 }
 
+function toggleAnimalUseImg() {
+    if (animalUse.checked) {
+        document.querySelector('#animalUseImg').className = "visible";
+    } else {
+        document.querySelector('#animalUseImg').className = "not-visible";
+    }
+}
+
 const newButton = document.querySelector('#newButton');
 const createButton = document.querySelector('#createButton');
 const updateButton = document.querySelector('#updateButton');
@@ -335,14 +344,6 @@ const userPerms = [];
 
 perm1.addEventListener('change', putPermissions);
 perm2.addEventListener('change', putPermissions);
-
-function toggleAnimalUseImg() {
-    if (animalUse.checked) {
-        document.querySelector('#animalUseImg').className = "visible";
-    } else {
-        document.querySelector('#animalUseImg').className = "not-visible";
-    }
-}
 
 const animalUse = document.querySelector('#animalUse');
 animalUse.addEventListener('change', toggleAnimalUseImg);
