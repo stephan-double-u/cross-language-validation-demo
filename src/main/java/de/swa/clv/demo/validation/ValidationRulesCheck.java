@@ -15,10 +15,15 @@ public interface ValidationRulesCheck {
     /**
      * Checks mandatory and content rules for the ValidationRulesGettable.
      *
-         * @param object the object against which the rules are checked
+     * @param object the object against which the rules are checked
+     * @param permissions the user permissions
      */
     default void requireValidationRulesPass(ValidationRulesGettable<?> object, String[] permissions) {
-        ValidationRules<?> rules = object.getValidationRules();
+        requireValidationRulesPass(object.getValidationRules(), object, permissions);
+    }
+
+    // Alternative method for validating objects that don't implement ValidationRulesGettable
+    default void requireValidationRulesPass(ValidationRules<?> rules, Object object, String[] permissions) {
         UserPermissions userPerms = UserPermissions.of(permissions);
         List<String> errors = ValidatorProvider.VALIDATOR.validateMandatoryRules(object, userPerms, rules);
         errors.addAll(ValidatorProvider.VALIDATOR.validateContentRules(object, userPerms, rules));

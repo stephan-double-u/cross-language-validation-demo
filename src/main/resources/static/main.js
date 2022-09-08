@@ -19,7 +19,6 @@ function resetForm() {
 function adjustFormMandatory(article) {
     propertiesToCheck.forEach(propName => {
         const isMandatory = isPropertyMandatory("article", propName, article, userPerms);
-        console.debug("%s is mandatory: %s", propName, isMandatory);
         document.querySelector('#' + propName + 'Label').className = "mandatory-" + isMandatory;
     });
 }
@@ -27,7 +26,6 @@ function adjustFormMandatory(article) {
 function adjustFormImmutable(article) {
     propertiesToCheck.forEach(propName => {
         const isImmutable = isPropertyImmutable("article", propName, article, userPerms);
-        console.debug("%s is immutable: %s", propName, isImmutable);
         document.querySelector('#' + propName).disabled = isImmutable;
         if (propName === 'accessories') {
             addAccessoryButton.disabled = isImmutable;

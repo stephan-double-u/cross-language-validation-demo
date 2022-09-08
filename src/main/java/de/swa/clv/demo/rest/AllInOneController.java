@@ -2,10 +2,7 @@ package de.swa.clv.demo.rest;
 
 import de.swa.clv.ValidationRules;
 import de.swa.clv.demo.User;
-import de.swa.clv.demo.model.Accessory;
-import de.swa.clv.demo.model.Article;
-import de.swa.clv.demo.model.Category;
-import de.swa.clv.demo.model.SubCategory;
+import de.swa.clv.demo.model.*;
 import de.swa.clv.demo.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +39,7 @@ public class AllInOneController {
 
     @GetMapping(value = "/validation-rules", produces = "application/json;charset=UTF-8")
     public String getValidationRules() {
-        return ValidationRules.serializeToJson(Article.RULES, Accessory.RULES);
+        return ValidationRules.serializeToJson(Article.RULES, AccessoryRules.RULES);
         // Alternative:
         // return Article.RULES.serializeToJson();
     }
@@ -93,7 +90,7 @@ public class AllInOneController {
                 entry(DEFAULT_CONTENT_MESSAGE_PREFIX + "range.article.accessories[*].amount",
                         "The amount of an accessory is not within this range: [" + Article.AMOUNT_MIN + "," +
                                 Article.AMOUNT_MAX + "]."),
-                entry(DEFAULT_CONTENT_MESSAGE_PREFIX + "range.article.accessories[*].amount#sum",
+                entry(DEFAULT_CONTENT_MESSAGE_PREFIX + "range.article.accessories[0/1].amount#sum",
                         "The sum of the quantities is too large (max " + Article.AMOUNT_SUM_MAX + ")."),
                 entry(DEFAULT_CONTENT_MESSAGE_PREFIX + "size.article.accessories",
                         "The article has to many accessories."),

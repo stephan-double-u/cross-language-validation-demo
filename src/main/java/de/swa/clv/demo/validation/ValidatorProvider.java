@@ -5,7 +5,6 @@ import de.swa.clv.Validator;
 public class ValidatorProvider {
 
     public static final Validator VALIDATOR = Validator.instance();
-
     static {
         // These are the default prefixes
         VALIDATOR.setDefaultMandatoryMessagePrefix("error.validation.mandatory.");

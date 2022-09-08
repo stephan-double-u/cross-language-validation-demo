@@ -1,6 +1,7 @@
 package de.swa.clv.demo.service;
 
 import de.swa.clv.demo.User;
+import de.swa.clv.demo.model.AccessoryRules;
 import de.swa.clv.demo.model.Article;
 import de.swa.clv.demo.validation.ValidationException;
 import de.swa.clv.demo.validation.ValidationRulesCheck;
@@ -16,14 +17,20 @@ import static de.swa.clv.demo.validation.ValidatorProvider.VALIDATOR;
 
 @Service
 public class ArticleService implements ValidationRulesCheck {
-    AtomicInteger articleIdSeq = new AtomicInteger(0);
+
+    // The demo app simply stores the articles in a map
     Map<Integer, Article> idArticleMap = new HashMap<>();
+    AtomicInteger articleIdSeq = new AtomicInteger(0);
 
     public Article createArticle(Article newArticle, User user) {
         newArticle.setId(null); // just a precautionary measure
 
         requireValidationRulesPass(newArticle, user.getPermissions());
         requireUniqueName(newArticle, false);
+        // The next validation is superfluous, accessory names have been already checked!
+        // It's just a demo on how to validate objects that don't implement ValidationRulesGettable
+        newArticle.getAccessories()
+                .forEach(acc -> requireValidationRulesPass(AccessoryRules.RULES, acc, user.getPermissions()));
 
         newArticle.setId(articleIdSeq.incrementAndGet());
         newArticle.setLastModifiedOn(new Date());

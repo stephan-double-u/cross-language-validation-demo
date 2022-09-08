@@ -41,7 +41,8 @@ public final class Article implements ValidationRulesGettable<Article> {
        (5) example for a complex rule the multiple conditions needs to be logically linked with AND _and_ OR.
        (6) If rules with RegEx constraints should be validated, the CLV client implementation has to support all used
            regex features as well, e.g. unicode property escapes like "\p{L}".
-       (7) 'technical' rule for concurrent modification detection
+       (7) the 'index definition' [*] is just a shortcut for [0/1] (start/step definition)
+       (8) 'technical' rule for concurrent modification detection
      */
     public static final ValidationRules<Article> RULES = new ValidationRules<>(Article.class);
     static {
@@ -109,9 +110,9 @@ public final class Article implements ValidationRulesGettable<Article> {
         RULES.content("accessories[*].name", RegEx.any(EXAMPLE_UNICODE_PROPERTY_CLASSES_REGEX)); // (6)
         RULES.content("accessories[*].name#distinct", Equals.any(true));
         RULES.content("accessories[*].amount", Range.minMax(AMOUNT_MIN, AMOUNT_MAX));
-        RULES.content("accessories[*].amount#sum", Range.max(AMOUNT_SUM_MAX));
+        RULES.content("accessories[0/1].amount#sum", Range.max(AMOUNT_SUM_MAX)); // (7)
 
-        RULES.immutable("lastModifiedOn"); // (7)
+        RULES.immutable("lastModifiedOn"); // (8)
     }
 
     private Integer id;
