@@ -31,9 +31,9 @@ class ArticleServiceTest {
     }
 
     @Test
-    void createArticle() {
+    void createInvalidArticle() {
         Article article = new Article();
-        article.setMaintenanceNextDate(LocalDate.MAX);
+        article.setMaintenanceNextDate(LocalDate.of(2000, 1, 1)); // Saturday
         article.setCategory(Category.ENDOSCOPY);
         article.setSubCategory(Category.IMAGING_SYSTEM.getSubCategories().get(0));
         article.setAccessories(List.of(
@@ -49,7 +49,7 @@ class ArticleServiceTest {
         List<String> fieldErrors = validationErrors.getFieldErrors();
         assertNotNull(fieldErrors);
         System.out.println(fieldErrors);
-        assertEquals(12, fieldErrors.size());
+        assertEquals(13, fieldErrors.size());
         assertTrue(fieldErrors.contains("error.validation.mandatory.article.name"));
         assertTrue(fieldErrors.contains("error.validation.mandatory.article.number"));
         assertTrue(fieldErrors.contains("error.validation.mandatory.article.status"));
@@ -57,10 +57,11 @@ class ArticleServiceTest {
         assertTrue(fieldErrors.contains("error.validation.content.regex_any.article.name"));
         assertTrue(fieldErrors.contains("error.validation.content.equals_any.article.status#initial"));
         assertTrue(fieldErrors.contains("error.validation.content.future_days.article.maintenanceNextDate"));
+        assertTrue(fieldErrors.contains("error.validation.content.weekday_any.article.maintenanceNextDate"));
         assertTrue(fieldErrors.contains("error.validation.content.equals_any_ref.article.subCategory"));
         assertTrue(fieldErrors.contains("error.validation.content.regex_any.article.accessories[*].name"));
         assertTrue(fieldErrors.contains("error.validation.content.range.article.accessories[*].amount"));
-        assertTrue(fieldErrors.contains("error.validation.content.range.article.accessories[*].amount#sum"));
+        assertTrue(fieldErrors.contains("error.validation.content.range.article.accessories[0/1].amount#sum"));
         assertTrue(fieldErrors.contains("error.validation.content.size.article.accessories"));
     }
 }

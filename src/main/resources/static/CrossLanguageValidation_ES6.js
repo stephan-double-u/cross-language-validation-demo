@@ -1,4 +1,4 @@
-const SCHEMA_VERSION = "0.7";
+const SCHEMA_VERSION = "0.8";
 
 const emptyValidationRules = {
     schemaVersion: SCHEMA_VERSION,
@@ -340,14 +340,13 @@ function validateAndGetTerminalAggregateFunctionIfExist(property) {
 }
 
 /**
- * Looks for matching rules for the given property in two steps:
+ * Gets all matching rules for the given property. A rule matches if
  * <ol>
- * <li>the rule <b>has</b> permissions assigned: the rule matches if its permissions and conditions matches the given
- * user permissions and object</li>
- * <li>the rule <b>has no</b> permissions assigned: the rule matches if its conditions matches the given
- * user permissions and object</li>
+ * <li>the rule has no permissions condition and no property related conditions assigned</li>
+ * <li>the rule has only a permissions condition and these permissions match the user permissions</li>
+ * <li>the rule has only property related conditions and all of these conditions match</li>
+ * <li>the rule has both permissions condition and property related conditions and all of these conditions match</li>
  * </ol>
- * If at least one matching rule is found in step 1, these rules are returned, otherwise the result of step 2.
  *
  * @returns _undefined_ if _typeRules_ resp. _typeRules[property]_ is _undefined_, otherwise an array with matching the
  * rules.
@@ -360,25 +359,17 @@ function getMatchingPropertyRules(typeRules, property, object, userPerms) {
     if (propertyRules.length === 0) {
         return [{}];
     }
-    // find all rules with matching permission and matching conditions
-    let matchingRules = propertyRules
-        .filter(rule => rule.permissions !== undefined)
-        .filter(rule => arePermissionsMatching(rule.permissions, userPerms))
+    return propertyRules
+        .filter(rule => rule.permissions === undefined || arePermissionsMatching(rule.permissions, userPerms))
         .filter(rule => allConditionsAreMet(getConditionsTopGroup(rule), object));
-    console.debug("matchingRules1 ", matchingRules)
-    if (matchingRules.length === 0) {
-        // find all default rules (w/o any permission) with matching conditions
-        matchingRules = propertyRules
-            .filter(rule => rule.permissions === undefined)
-            .filter(rule => allConditionsAreMet(getConditionsTopGroup(rule), object));
-    }
-    console.debug("matchingRules2 ", matchingRules)
-    return matchingRules;
 }
 
 function arePermissionsMatching(conditionPerms, userPerms) {
-    if (conditionPerms === undefined || userPerms === undefined) {
+    if (conditionPerms === undefined) {
         return false;
+    }
+    if (userPerms === undefined) {
+        userPerms = [];
     }
     let matchingPerms = userPerms.filter(value => conditionPerms.values.includes(value));
     switch (conditionPerms?.type) {
@@ -570,6 +561,7 @@ function validateContraint(constraint, propValue, object) {
             isMet = equalsRefConstraintIsMet(constraint, propValue, object);
             break;
         case 'REGEX_ANY':
+        case 'REGEX_NONE':
             isMet =  regexConstraintIsMet(constraint, propValue);
             break;
         case 'SIZE':
@@ -659,7 +651,7 @@ export function equalsConstraintIsMet(constraint, propValue) {
 }
 
 /**
- * Validates EQUALS_ANY_REF-REF and EQUALS_NONE_REF constraint.
+ * Validates EQUALS_ANY_REF and EQUALS_NONE_REF constraint.
  */
 export function equalsRefConstraintIsMet(constraint, propValue, object) {
     switch (constraint.type) {
@@ -702,23 +694,25 @@ function singleRefPropertyMatch(refProp, propValue, object) {
 }
 
 /**
- * Validates REGEX_ANY constraint.
+ * Validates REGEX_ANY and REGEX_NONE constraint.
  */
 export function regexConstraintIsMet(constraint, propValue) {
-    if (constraint.type !== 'REGEX_ANY') {
-        console.error("Unknown regex constraint type: ", constraint.type)
-        return false;
+    switch (constraint.type) {
+        case 'REGEX_ANY':
+        case 'REGEX_NONE':
+            if (propValueIsNullOrUndefined(propValue)) {
+                return false;
+            }
+            for (const regexString of constraint.values) {
+                const regex = new RegExp(regexString, "u");
+                if (("" + propValue).match(regex)) {
+                    return constraint.type === 'REGEX_ANY';
+                }
+            }
+            return constraint.type === 'REGEX_NONE';
+        default:
+            console.error("Unknown regex constraint type: ", constraint.type)
     }
-    if (propValueIsNullOrUndefined(propValue)) {
-        return false;
-    }
-    for (const regexString of constraint.values) {
-        const regex = new RegExp(regexString, "u");
-        if (("" + propValue).match(regex)) {
-            return true;
-        }
-    }
-    return false;
 }
 
 /**

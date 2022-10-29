@@ -8,11 +8,12 @@ import de.swa.clv.demo.validation.ValidationRulesGettable;
 import de.swa.clv.groups.ConditionsGroup;
 import de.swa.clv.groups.ConditionsTopGroup;
 
-import java.time.LocalDate;
+import java.time.*;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import static de.swa.clv.demo.model.Permission.MANAGER;
 import static de.swa.clv.demo.model.Status.*;
 import static de.swa.clv.demo.model.Permission.DecommissionAssets;
 import static java.lang.Boolean.TRUE;
@@ -60,6 +61,7 @@ public final class Article implements ValidationRulesGettable<Article> {
         RULES.update("status", Equals.any(NEW, ACTIVE, INACTIVE),
                 Condition.of("status", Equals.any(NEW)));
         RULES.update("status", Equals.any(ACTIVE, INACTIVE),
+                Permissions.none(DecommissionAssets),
                 Condition.of("status", Equals.any(ACTIVE, INACTIVE)));
         RULES.update("status", Equals.any(ACTIVE, INACTIVE, DECOMMISSIONED),
                 Permissions.any(DecommissionAssets),
@@ -97,15 +99,16 @@ public final class Article implements ValidationRulesGettable<Article> {
                                 Condition.of("medicalSet", Equals.notNull())))); //(5)
 
         RULES.content("accessories", Size.max(3),
+                Permissions.none(MANAGER),
                 Condition.of("id", Equals.null_()));
         RULES.content("accessories", Size.max(4),
-                Permissions.any(Permission.MANAGER));
+                Permissions.any(MANAGER));
         RULES.update("accessories", Size.max(3),
-                Permissions.none(Permission.MANAGER),
+                Permissions.none(MANAGER),
                 Condition.of("accessories", Size.max(3)));
         RULES.update("accessories", Size.max(4),
-                Permissions.none(Permission.MANAGER),
-                Condition.of("accessories", Size.minMax(4, 4)));
+                Permissions.none(MANAGER),
+                Condition.of("accessories", Size.min(4)));
 
         RULES.content("accessories[*].name", RegEx.any(EXAMPLE_UNICODE_PROPERTY_CLASSES_REGEX)); // (6)
         RULES.content("accessories[*].name#distinct", Equals.any(true));
@@ -128,6 +131,28 @@ public final class Article implements ValidationRulesGettable<Article> {
     private Category category;
     private SubCategory subCategory;
     private List<Accessory> accessories = List.of();
+
+    private LocalDateTime tempLDT = LocalDateTime.now();
+    private ZonedDateTime tempZDT = ZonedDateTime.now(ZoneId.of("Europe/Berlin"));
+    private OffsetDateTime tempODT = OffsetDateTime.now(ZoneId.of("Europe/Berlin"));
+    public LocalDateTime getTempLDT() {
+        return tempLDT;
+    }
+    public void setTempLDT(LocalDateTime tempLDT) {
+        this.tempLDT = tempLDT;
+    }
+    public ZonedDateTime getTempZDT() {
+        return tempZDT;
+    }
+    public void setTempZDT(ZonedDateTime tempZDT) {
+        this.tempZDT = tempZDT;
+    }
+    public OffsetDateTime getTempODT() {
+        return tempODT;
+    }
+    public void setTempODT(OffsetDateTime tempODT) {
+        this.tempODT = tempODT;
+    }
 
     public Article() { /**/
     }
