@@ -132,28 +132,6 @@ public final class Article implements ValidationRulesGettable<Article> {
     private SubCategory subCategory;
     private List<Accessory> accessories = List.of();
 
-    private LocalDateTime tempLDT = LocalDateTime.now();
-    private ZonedDateTime tempZDT = ZonedDateTime.now(ZoneId.of("Europe/Berlin"));
-    private OffsetDateTime tempODT = OffsetDateTime.now(ZoneId.of("Europe/Berlin"));
-    public LocalDateTime getTempLDT() {
-        return tempLDT;
-    }
-    public void setTempLDT(LocalDateTime tempLDT) {
-        this.tempLDT = tempLDT;
-    }
-    public ZonedDateTime getTempZDT() {
-        return tempZDT;
-    }
-    public void setTempZDT(ZonedDateTime tempZDT) {
-        this.tempZDT = tempZDT;
-    }
-    public OffsetDateTime getTempODT() {
-        return tempODT;
-    }
-    public void setTempODT(OffsetDateTime tempODT) {
-        this.tempODT = tempODT;
-    }
-
     public Article() { /**/
     }
 
