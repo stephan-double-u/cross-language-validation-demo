@@ -1,7 +1,7 @@
 # CLV Demo Application
 This is a simple demo application showing the use of the
 [Cross Language Validation Framework](https://github.com/stephan-double-u/cross-language-validation-schema)
-(version 0.8) in a web application on the basis of a close-to-life example:
+(version 0.9) in a web application on the basis of a close-to-life example:
 
 > Let's say we work for a company that rents medical equipment.<br>
 > Each medical article may contain several accessories.<br>
@@ -30,20 +30,32 @@ The frontend is a single page app that allows the creation and update of article
 
 ## Maven
 ### settings.xml
-Until this artifact is available on Maven Central, it is downloaded by this `server` in `settings.xml`.
+Until this artifact is available on Maven Central, it can be used with by building it with
+[JitPack](https://jitpack.io/).
 
-Note: `<REMOVE>` must be removed from the public read access token:
+Add the `repository jitpack.io` and the `dependency cross-language-validation-java` to the `pom.xml` file.
 
-    <servers>
-        <server>
-            <id>github</id>
-            <username>stephan-double-u</username>
-            <password>ghp_<REMOVE>ZvGsEK3vqGUCXcyCQAVNuUupkKBju4242QoU</password>
-        </server>
-    </servers>
+    <repositories>
+      <repository>
+        <id>central</id>
+        <url>https://repo.maven.apache.org/maven2</url>
+      </repository>
+      <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+      </repository>
+    </repositories>
+
+    <dependencies>
+      <dependency>
+        <groupId>com.github.stephan-double-u</groupId>
+        <artifactId>cross-language-validation-java</artifactId>
+        <version>v0.9.2</version>
+      </dependency>
+    </dependencies>
 
 ## Usage
-Build and start the application with `mvn spring-boot:run -s .m2/settings.xml` 
+Build and start the application with `mvn spring-boot:run` 
 
 Open [http://localhost:8080/](http://localhost:8080/)
 
