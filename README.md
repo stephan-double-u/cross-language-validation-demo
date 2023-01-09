@@ -1,7 +1,7 @@
 # CLV Demo Application
 This is a simple demo application showing the use of the
 [Cross Language Validation Framework](https://github.com/stephan-double-u/cross-language-validation-schema)
-(version 0.9) in a web application on the basis of a close-to-life example:
+(version 0.10) in a web application on the basis of a close-to-life example:
 
 > Let's say we work for a company that rents medical equipment.<br>
 > Each medical article may contain several accessories.<br>
@@ -50,7 +50,7 @@ Add the `repository jitpack.io` and the `dependency cross-language-validation-ja
       <dependency>
         <groupId>com.github.stephan-double-u</groupId>
         <artifactId>cross-language-validation-java</artifactId>
-        <version>v0.9.2</version>
+        <version>v0.10.0</version>
       </dependency>
     </dependencies>
 
