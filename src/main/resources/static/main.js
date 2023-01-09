@@ -303,6 +303,11 @@ const loadArticle = async () => {
         savedArticle = responseJson;
         toForm(savedArticle);
         adjustFormImmutable(savedArticle);
+        // ugly: have to reset select boxes and reselect current selections before calling validate(); TODO improve
+        adjustCategoryBox(savedArticle);
+        document.querySelector("#category").value = responseJson.category;
+        adjustSubCategoryBox(responseJson.category);
+        document.querySelector("#subCategory").value = responseJson.subCategory;
         validate();
         createButton.disabled = true;
         updateButton.disabled = false;
