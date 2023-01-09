@@ -32,8 +32,8 @@ public final class Article implements ValidationRulesGettable<Article> {
        (1) example on how to add suffix to the error code
        (2) example on how to replace the error code by own code (resp. own message)
            ".article.status" is needed here by frontend to assign the error message to the #statusErr element
-       (3) example on how multiple rules for the same property (here: "maintenanceNextDate") and the same type
-           (here: _content_) and different constraints can be defined
+       (3) example on how multiple rules for the same property (here: "maintenanceNextDate") and the same rule type
+           (here: 'content') and different constraints can be defined
        (4) Enums are objects in Java and serialized as strings by default. Therefore, nested properties of enums like
            "category.subCategories[*]" can't be validated in a Javascript frontend easily.
            With the help of the method "doNotSerialize()" it can be prevented that such rules are serialized.
@@ -45,52 +45,60 @@ public final class Article implements ValidationRulesGettable<Article> {
        (7) the 'index definition' [*] is just a shortcut for [0/1] (start/step definition)
        (8) 'technical' rule for concurrent modification detection
      */
-    public static final ValidationRules<Article> RULES = new ValidationRules<>(Article.class);
+    public static final ValidationRules<Article> rules = new ValidationRules<>(Article.class);
     static {
-        RULES.mandatory("name");
-        RULES.content("name", RegEx.any(TRIMMED_3_TO_30_REGEX));
-
-        RULES.mandatory("number");
-
-        RULES.mandatory("status");
-        RULES.immutable("status",
+        rules.mandatory("name");
+        rules.immutable("name",
                 Condition.of("status", Equals.any(DECOMMISSIONED)));
-        RULES.content("status", Equals.any(NEW),
+        rules.content("name", RegEx.any(TRIMMED_3_TO_30_REGEX));
+
+        rules.mandatory("number");
+        rules.immutable("number",
+                Condition.of("status", Equals.any(DECOMMISSIONED)));
+
+        rules.mandatory("status");
+        rules.immutable("status",
+                Condition.of("status", Equals.any(DECOMMISSIONED)));
+        rules.content("status", Equals.any(NEW),
                 Condition.of("id", Equals.null_()))
                 .errorCodeControl(UseType.AS_SUFFIX, "#initial"); // (1)
-        RULES.update("status", Equals.any(NEW, ACTIVE, INACTIVE),
+        rules.update("status", Equals.any(NEW, ACTIVE, INACTIVE),
                 Condition.of("status", Equals.any(NEW)));
-        RULES.update("status", Equals.any(ACTIVE, INACTIVE),
+        rules.update("status", Equals.any(ACTIVE, INACTIVE),
                 Permissions.none(DecommissionAssets),
                 Condition.of("status", Equals.any(ACTIVE, INACTIVE)));
-        RULES.update("status", Equals.any(ACTIVE, INACTIVE, DECOMMISSIONED),
+        rules.update("status", Equals.any(ACTIVE, INACTIVE, DECOMMISSIONED),
                 Permissions.any(DecommissionAssets),
                 Condition.of("status", Equals.any(ACTIVE, INACTIVE)))
                 .errorCodeControl(UseType.AS_REPLACEMENT, "mycode.for.article.status"); // (2)
 
-        RULES.mandatory("maintenanceIntervalMonth",
+        rules.mandatory("maintenanceIntervalMonth",
                 ConditionsGroup.OR(
                         Condition.of("maintenanceNextDate", Equals.notNull()),
                         Condition.of("maintenanceIntervalMonth", Equals.notNull())));
-        RULES.mandatory("maintenanceNextDate",
+        rules.mandatory("maintenanceNextDate",
                 ConditionsGroup.OR(
                         Condition.of("maintenanceIntervalMonth", Equals.notNull()),
                         Condition.of("maintenanceNextDate", Equals.notNull())));
-        RULES.content("maintenanceNextDate", Future.minMaxDays(1, 365),
-                Condition.of("maintenanceNextDate", Equals.notNull())); // (3)
-        RULES.content("maintenanceNextDate", Weekday.anyOrNull(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)); // (3)
-        RULES.content("maintenanceNextDate", Equals.none(getFakedCompanyVacationDates())); // (3)
+        rules.content("maintenanceNextDate", Future.minMaxDays(1, 365),
+                ConditionsGroup.AND(
+                        Condition.of("maintenanceNextDate", Equals.notNull()),
+                        Condition.of("id", Equals.null_()))); // (3)
+        rules.content("maintenanceNextDate", Weekday.anyOrNull(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)); // (3)
+        rules.content("maintenanceNextDate", Equals.none(getFakedCompanyVacationDates())); // (3)
+        rules.update("maintenanceNextDate", Future.minMaxDays(1, 365),
+                        Condition.of("maintenanceNextDate", Value.changed()));
 
-        RULES.content("category", Equals.anyOrNull(Category.values()));
-        RULES.mandatory("subCategory",
+        rules.content("category", Equals.anyOrNull(Category.values()));
+        rules.mandatory("subCategory",
                 Condition.of("category", Equals.notNull()));
-        RULES.content("subCategory", Equals.anyRefOrNull("category.subCategories[*]"))
+        rules.content("subCategory", Equals.anyRefOrNull("category.subCategories[*]"))
                 .doNotSerialize(); // (4)
 
-        RULES.immutable("everLeftWarehouse",
+        rules.immutable("everLeftWarehouse",
                 Condition.of("everLeftWarehouse", Equals.any(TRUE)));
 
-        RULES.immutable("animalUse",
+        rules.immutable("animalUse",
                 ConditionsTopGroup.OR(
                         ConditionsGroup.AND(
                                 Condition.of("animalUse", Equals.any(TRUE)),
@@ -98,24 +106,24 @@ public final class Article implements ValidationRulesGettable<Article> {
                         ConditionsGroup.AND(
                                 Condition.of("medicalSet", Equals.notNull())))); //(5)
 
-        RULES.content("accessories", Size.max(3),
+        rules.content("accessories", Size.max(3),
                 Permissions.none(MANAGER),
                 Condition.of("id", Equals.null_()));
-        RULES.content("accessories", Size.max(4),
+        rules.content("accessories", Size.max(4),
                 Permissions.any(MANAGER));
-        RULES.update("accessories", Size.max(3),
+        rules.update("accessories", Size.max(3),
                 Permissions.none(MANAGER),
                 Condition.of("accessories", Size.max(3)));
-        RULES.update("accessories", Size.max(4),
+        rules.update("accessories", Size.max(4),
                 Permissions.none(MANAGER),
                 Condition.of("accessories", Size.min(4)));
 
-        RULES.content("accessories[*].name", RegEx.any(EXAMPLE_UNICODE_PROPERTY_CLASSES_REGEX)); // (6)
-        RULES.content("accessories[*].name#distinct", Equals.any(true));
-        RULES.content("accessories[*].amount", Range.minMax(AMOUNT_MIN, AMOUNT_MAX));
-        RULES.content("accessories[0/1].amount#sum", Range.max(AMOUNT_SUM_MAX)); // (7)
+        rules.content("accessories[*].name", RegEx.any(EXAMPLE_UNICODE_PROPERTY_CLASSES_REGEX)); // (6)
+        rules.content("accessories[*].name#distinct", Equals.any(true));
+        rules.content("accessories[*].amount", Range.minMax(AMOUNT_MIN, AMOUNT_MAX));
+        rules.content("accessories[0/1].amount#sum", Range.max(AMOUNT_SUM_MAX)); // (7)
 
-        RULES.immutable("lastModifiedOn"); // (8)
+        rules.immutable("lastModifiedOn"); // (8)
     }
 
     private Integer id;
@@ -132,7 +140,21 @@ public final class Article implements ValidationRulesGettable<Article> {
     private SubCategory subCategory;
     private List<Accessory> accessories = List.of();
 
-    public Article() { /**/
+    public Article() {
+    }
+
+    public Article(Integer id, String name, String number, Status status, Short maintenanceIntervalMonth,
+            LocalDate maintenanceNextDate, Category category, SubCategory subCategory, List<Accessory> accessories, Date lastModifiedOn) {
+        this.id = id;
+        this.name = name;
+        this.number = number;
+        this.status = status;
+        this.maintenanceIntervalMonth = maintenanceIntervalMonth;
+        this.maintenanceNextDate = maintenanceNextDate;
+        this.category = category;
+        this.subCategory = subCategory;
+        this.accessories = accessories;
+        this.lastModifiedOn = lastModifiedOn;
     }
 
     public Integer getId() {
@@ -242,7 +264,7 @@ public final class Article implements ValidationRulesGettable<Article> {
     @JsonIgnore
     @Override
     public ValidationRules<Article> getValidationRules() {
-        return RULES;
+        return rules;
     }
 
     private static LocalDate[] getFakedCompanyVacationDates() {

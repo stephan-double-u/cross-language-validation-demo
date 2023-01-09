@@ -7,7 +7,7 @@ public class ArticleTest {
 
     @Test
     public void validationRulesAreValid_yesItIsThatSimple() {
-        Assertions.assertDoesNotThrow(() -> Article.RULES);
+        Assertions.assertDoesNotThrow(() -> Article.rules);
     }
 
 }

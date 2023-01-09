@@ -27,6 +27,11 @@ public class AllInOneController {
     @Autowired
     private ArticleService articleService;
 
+    @GetMapping(value = "/article/{id}", produces = "application/json;charset=UTF-8")
+    public Article getArticle(@PathVariable(name = "id") int id) {
+        return articleService.getArticle(id);
+    }
+
     @PostMapping(value = "/article", produces = "application/json;charset=UTF-8")
     public Article createArticle(@RequestBody Article article) {
         return articleService.createArticle(article, userMock);
@@ -39,7 +44,7 @@ public class AllInOneController {
 
     @GetMapping(value = "/validation-rules", produces = "application/json;charset=UTF-8")
     public String getValidationRules() {
-        return ValidationRules.serializeToJson(Article.RULES, AccessoryRules.RULES);
+        return ValidationRules.serializeToJson(Article.rules, AccessoryRules.rules);
         // Alternative:
         // return Article.RULES.serializeToJson();
     }
@@ -69,6 +74,8 @@ public class AllInOneController {
                         "The next maintenance date is required when the interval is specified."),
                 entry(DEFAULT_CONTENT_MESSAGE_PREFIX + "future_days.article.maintenanceNextDate",
                         "The next maintenance date must be 1 to 365 days in the future."),
+                entry(DEFAULT_UPDATE_MESSAGE_PREFIX + "future_days.article.maintenanceNextDate",
+                        "An updated maintenance date must be 1 to 365 days in the future."),
                 entry(DEFAULT_CONTENT_MESSAGE_PREFIX + "weekday_any.article.maintenanceNextDate",
                         "Maintenance is not done on weekend days."),
                 entry(DEFAULT_CONTENT_MESSAGE_PREFIX + "equals_none.article.maintenanceNextDate",

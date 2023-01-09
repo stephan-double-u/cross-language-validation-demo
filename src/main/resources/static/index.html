@@ -10,12 +10,12 @@
         .err {padding-bottom: 20px; color: tomato; font-size: smaller;}
         .mandatory-true::after {content: " *";}
         .mandatory-false::after {content: "";}
-        table td {vertical-align: top;}
-        td {padding-right: 80px;}
+        table {}
+        td {padding-right: 80px; vertical-align: top;}
         input {width: 200px;}
         .widthAuto {width: auto;}
-        .visible {visibility: visible;}
-        .not-visible {visibility: hidden;}
+        .visible {display: block;}
+        .not-visible {display:none;}
     </style>
 </head>
 <body>
@@ -41,11 +41,6 @@
                 <label id="numberLabel" for="number">Number</label>
                 <input id="number" type="text" onfocusout="validate()">
                 <div class="err" id="numberErr"></div>
-                <label id="statusLabel" for="status">Status</label>
-                <select id="status" style="width: 207px" onchange="validate()">
-                    <option></option>
-                </select>
-                <div class="err" id="statusErr"></div>
                 <label id="maintenanceIntervalMonthLabel" for="maintenanceIntervalMonth">Maintenance interval</label>
                 <input id="maintenanceIntervalMonth" type="text" placeholder="in month" onchange="validate()"
                        oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');">
@@ -62,6 +57,11 @@
                 <label for="lastModifiedOn" style="color:darkgray">Last modified on</label>
                 <input id="lastModifiedOn" type="text" disabled style="color:darkgray">
                 <div class="err" id="lastModifiedOnErr"></div>
+                <label id="statusLabel" for="status">Status</label>
+                <select id="status" style="width: 207px" onchange="validate()">
+                    <option></option>
+                </select>
+                <div class="err" id="statusErr"></div>
                 <label id="categoryLabel" for="category">Category</label>
                 <select id="category" style="width: 207px" onchange="validate()">
                     <option></option>
@@ -85,12 +85,18 @@
             </td>
         </tr>
     </table>
+    <br/>
     <button id="newButton">New</button>
     <button id="createButton" disabled>Create</button>
     <button id="updateButton" disabled>Update</button>
+    &nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;
+    <button id="loadButton">Load Article:</button>
+    <input  style="width: 62px" id="articleId" type="text" placeholder="article id" value="1" title="Id of article to load"
+           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');">
     <br/>
     <br/>
     <hr/>
+    <br/>
     <button id="loadRulesButton" title="Gets rules as JSON from backend">Load Validation Rules</button>&nbsp;&nbsp;&nbsp;
     <button id="loadErrorMessagesButton" title="Gets error code to message mapping from backend">Load Error Message</button>&nbsp;&nbsp;&nbsp;
     <button id="toggleShowFirstOrAllErrorsButton">Toggle show first/all property error(s)</button>&nbsp;&nbsp;&nbsp;

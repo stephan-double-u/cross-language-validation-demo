@@ -70,17 +70,18 @@ function adjustCategoryBox(article) {
             categoryBox.options.add(new Option(optionText, category, selected, selected));
         }
     }
-    adjustSubCategoryBox(selectedCategory);
+    adjustSubCategoryBox(selectedCategory, article.subCategory);
 }
 
-function adjustSubCategoryBox(selectedCategory) {
+function adjustSubCategoryBox(selectedCategory, articleSubCategory) {
     let allowedSubCategories = [null];
     if (selectedCategory) {
         allowedSubCategories.push(...categoryMapping.category[selectedCategory].subCategories);
     }
     console.debug("Allowed subCategories: ", allowedSubCategories);
     const subCategoryBox = document.querySelector('#subCategory');
-    const selectedSubCategory = subCategoryBox.value;
+    const selectedSubCategory = subCategoryBox.value || articleSubCategory;
+    console.debug("Allowed subCategories selected: ", selectedSubCategory);
     subCategoryBox.innerHTML = "<option></option>";
     for (const subCategory of allowedSubCategories) {
         if (subCategory !== null) {
@@ -277,11 +278,37 @@ const putArticle = async () => {
         const concurrentModErrCode = "error.validation.immutable.article.lastModifiedOn";
         if (responseJson.includes(concurrentModErrCode)) {
             alert("Concurrent Modification Exception!\n" +
-                getErrorMessageForCode(concurrentModErrCode) + "\n" +
-                "Reload the article (not implemented in demo app).")
+                getErrorMessageForCode(concurrentModErrCode) + "\n" + "Reload the article.")
         }
     } else {
         console.error("putArticle: should not happen: %s", response.status);
+    }
+}
+
+const loadArticle = async () => {
+    const articleId = document.querySelector("#articleId").value;
+    console.debug("articleId to load: %s", articleId);
+    if (articleId === null) {
+        return;
+    }
+    const response = await fetch('http://localhost:8080/article/' + articleId, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    console.info("loadArticle status: %s", response.status);
+    const responseJson = await response.json();
+    if (response.status === 200) {
+        savedArticle = responseJson;
+        toForm(savedArticle);
+        adjustFormImmutable(savedArticle);
+        validate();
+        createButton.disabled = true;
+        updateButton.disabled = false;
+        changeLastModifiedOnButton.disabled = false;
+    } else {
+        alert("Article could not be loaded!");
     }
 }
 
@@ -321,6 +348,7 @@ function toggleAnimalUseImg() {
 const newButton = document.querySelector('#newButton');
 const createButton = document.querySelector('#createButton');
 const updateButton = document.querySelector('#updateButton');
+const loadButton = document.querySelector('#loadButton');
 const addAccessoryButton = document.querySelector('#addAccessoryButton');
 const loadRulesButton = document.querySelector('#loadRulesButton');
 const loadErrorMessagesButton = document.querySelector('#loadErrorMessagesButton');
@@ -330,6 +358,7 @@ const changeLastModifiedOnButton = document.querySelector('#changeLastModifiedOn
 newButton.addEventListener('click', resetForm);
 createButton.addEventListener('click', postArticle);
 updateButton.addEventListener('click', putArticle);
+loadButton.addEventListener('click', loadArticle);
 addAccessoryButton.addEventListener('click', addAccessory);
 loadRulesButton.addEventListener('click', getValidationRules);
 loadErrorMessagesButton.addEventListener('click', getValidationErrorCodeMap);
