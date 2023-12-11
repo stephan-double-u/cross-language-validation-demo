@@ -39,7 +39,7 @@ public class ArticleService implements ValidationRulesCheck {
         newArticle.setId(null); // just a precautionary measure
 
         requireValidationRulesPass(newArticle, user.getPermissions());
-        requireUniqueName(newArticle, false);
+        requireUniqueName(newArticle);
         // The next validation is superfluous, accessory names have been already checked!
         // It's just a demo on how to validate objects that don't implement ValidationRulesGettable
         newArticle.getAccessories()
@@ -56,7 +56,7 @@ public class ArticleService implements ValidationRulesCheck {
         Article currentArticle = idArticleMap.get(editedArticle.getId());
 
         requireValidationRulesPass(editedArticle, currentArticle, user.getPermissions());
-        requireUniqueName(editedArticle, true);
+        requireUniqueName(editedArticle);
 
         editedArticle.setLastModifiedOn(new Date());
 
@@ -64,11 +64,11 @@ public class ArticleService implements ValidationRulesCheck {
         return editedArticle;
     }
 
-    private void requireUniqueName(Article article, boolean forUpdate) {
+    private void requireUniqueName(Article article) {
         idArticleMap.values().stream()
                 .filter(existingArticle -> existingArticle.getName() != null)
-                .filter(existingArticle -> !existingArticle.getName().equalsIgnoreCase(article.getName()) || !forUpdate)
-                .filter(existingArticle -> existingArticle.getName().equalsIgnoreCase(article.getName()))
+                .filter(existingArticle -> existingArticle.getName().equalsIgnoreCase(article.getName())
+                        && (article.getId() != null && !existingArticle.getId().equals(article.getId())))
                 .findFirst().ifPresent(ignore -> {
                     throw new ValidationException("error", List.of(
                             VALIDATOR.getDefaultContentMessagePrefix() + "not-unique.article.name"));
