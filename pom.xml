@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.5</version>
+		<version>3.1.2</version>
 		<relativePath/>
 	</parent>
 	<groupId>de.swa.clv</groupId>
@@ -34,9 +34,10 @@
 		<dependency>
 			<groupId>com.github.stephan-double-u</groupId>
 			<artifactId>cross-language-validation-java</artifactId>
-			<version>v0.10.0</version>
+			<version>v0.11.0</version>
 		</dependency>
 		<dependency>
+			<!-- transitive vulnerable dependency org.yaml:snakeyaml:1.33 irrelevant for this demo app -->
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>

@@ -1,7 +1,7 @@
 # CLV Demo Application
 This is a simple demo application showing the use of the
 [Cross Language Validation Framework](https://github.com/stephan-double-u/cross-language-validation-schema)
-(version 0.10) in a web application on the basis of a close-to-life example:
+(version 0.11) in a web application on the basis of a close-to-life example:
 
 > Let's say we work for a company that rents medical equipment.<br>
 > Each medical article may contain several accessories.<br>
@@ -50,7 +50,7 @@ Add the `repository jitpack.io` and the `dependency cross-language-validation-ja
       <dependency>
         <groupId>com.github.stephan-double-u</groupId>
         <artifactId>cross-language-validation-java</artifactId>
-        <version>v0.10.0</version>
+        <version>v0.11.0</version>
       </dependency>
     </dependencies>
 
@@ -94,9 +94,11 @@ Open [http://localhost:8080/](http://localhost:8080/)
     - For _Imaging System_ the valid sub-categories are: _Camera Head_,  _Light Source_, _Video Processors_
 - The property _maintenanceIntervalMonth_ is mandatory if _maintenanceNextDate_ has been entered.
 - The property _maintenanceNextDate_ is mandatory if _maintenanceIntervalMonth_ has been entered.
-  - This date must be 1 to 365 days the future.
   - Maintenance is not done on weekend days.
-  - Maintenance is not done on company vacations days in august.
+  - Maintenance is not done on company vacations days in August.
+  - When an article is saved, this date must be 1 to 365 days in the future if
+    - a date has been newly entered, or
+    - a given date (that may lie in the past) has been changed.
 - Each article can be assigned several accessories in a certain quantity
   - The name of each accessory must correspond to the regular expression `"^[\\p{L}][\\p{L}\\p{N} ]*$"`.
   - The accessory names have to be distinct per article.
@@ -106,6 +108,7 @@ Open [http://localhost:8080/](http://localhost:8080/)
   - A user with the role _MANAGER_ can add a 4th accessory.
   - Each user can update an article, although it has 4 accessories.
 - Concurrent updates of articles have to be prevented (by optimistic locking).
+
 
 ## Implementation notes
 ### General

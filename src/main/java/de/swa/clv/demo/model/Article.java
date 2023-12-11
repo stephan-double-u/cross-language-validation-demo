@@ -21,40 +21,38 @@ import static java.time.DayOfWeek.*;
 
 public final class Article implements ValidationRulesGettable<Article> {
 
-    private static final String TRIMMED_3_TO_30_REGEX = "^(?! ).{3,30}(?<! )$";
+    public static final String TRIMMED_3_TO_30_REGEX = "^(?! ).{3,30}(?<! )$";
     public static final String EXAMPLE_UNICODE_PROPERTY_CLASSES_REGEX = "^[\\p{L}][\\p{L}\\p{N} ]*$";
     public static final int AMOUNT_MIN = 1;
     public static final int AMOUNT_MAX = 10;
     public static final int AMOUNT_SUM_MAX = 20;
 
     /*
-       Remarks about the demo validation rules:
-       (1) example on how to add suffix to the error code
-       (2) example on how to replace the error code by own code (resp. own message)
+       Remarks about the demo validation rules defined in README.md chapter "Validation requirements":
+       (1) Example on how to add a suffix to the error code.
+       (2) Example on how to replace the error code by own code (resp. own message).
            ".article.status" is needed here by frontend to assign the error message to the #statusErr element
-       (3) example on how multiple rules for the same property (here: "maintenanceNextDate") and the same rule type
-           (here: 'content') and different constraints can be defined
-       (4) Enums are objects in Java and serialized as strings by default. Therefore, nested properties of enums like
+       (3) These conditions are only added to set the '*'-indicator to both input field in the frontend.
+       (4) Example on how multiple rules for the same property (here: "maintenanceNextDate") and the same rule type
+           (here: 'content') and different constraints can be defined.
+       (5) Enums are objects in Java and serialized as strings by default. Therefore, nested properties of enums like
            "category.subCategories[*]" can't be validated in a Javascript frontend easily.
            With the help of the method "doNotSerialize()" it can be prevented that such rules are serialized.
            Besides, it is also likely not necessary to validate the rule in the frontend, because the synchronization of
            the select boxes, which is done in a frontend anyway, ensures that no wrong sub-category is transferred.
-       (5) example for a complex rule the multiple conditions needs to be logically linked with AND _and_ OR.
-       (6) If rules with RegEx constraints should be validated, the CLV client implementation has to support all used
+       (6) Example for a complex rule the multiple conditions needs to be logically linked with AND _and_ OR.
+       (7) If rules with RegEx constraints should be validated, the CLV client implementation has to support all used
            regex features as well, e.g. unicode property escapes like "\p{L}".
-       (7) the 'index definition' [*] is just a shortcut for [0/1] (start/step definition)
-       (8) 'technical' rule for concurrent modification detection
+       (8) The 'index definition' [*] is just a shortcut for [0/1] (start/step definition).
+       (9) Rule for concurrent modification detection - yes, it's that simple!
      */
+
     public static final ValidationRules<Article> rules = new ValidationRules<>(Article.class);
     static {
         rules.mandatory("name");
-        rules.immutable("name",
-                Condition.of("status", Equals.any(DECOMMISSIONED)));
         rules.content("name", RegEx.any(TRIMMED_3_TO_30_REGEX));
 
         rules.mandatory("number");
-        rules.immutable("number",
-                Condition.of("status", Equals.any(DECOMMISSIONED)));
 
         rules.mandatory("status");
         rules.immutable("status",
@@ -67,7 +65,7 @@ public final class Article implements ValidationRulesGettable<Article> {
         rules.update("status", Equals.any(ACTIVE, INACTIVE),
                 Permissions.none(DecommissionAssets),
                 Condition.of("status", Equals.any(ACTIVE, INACTIVE)));
-        rules.update("status", Equals.any(ACTIVE, INACTIVE, DECOMMISSIONED),
+        rules.update("status", Equals.noneNorNull(NEW), // same as Equals.any(ACTIVE, INACTIVE, DECOMMISSIONED)
                 Permissions.any(DecommissionAssets),
                 Condition.of("status", Equals.any(ACTIVE, INACTIVE)))
                 .errorCodeControl(UseType.AS_REPLACEMENT, "mycode.for.article.status"); // (2)
@@ -75,25 +73,23 @@ public final class Article implements ValidationRulesGettable<Article> {
         rules.mandatory("maintenanceIntervalMonth",
                 ConditionsGroup.OR(
                         Condition.of("maintenanceNextDate", Equals.notNull()),
-                        Condition.of("maintenanceIntervalMonth", Equals.notNull())));
+                        Condition.of("maintenanceIntervalMonth", Equals.notNull()))); // (3)
         rules.mandatory("maintenanceNextDate",
                 ConditionsGroup.OR(
                         Condition.of("maintenanceIntervalMonth", Equals.notNull()),
-                        Condition.of("maintenanceNextDate", Equals.notNull())));
-        rules.content("maintenanceNextDate", Future.minMaxDays(1, 365),
-                ConditionsGroup.AND(
-                        Condition.of("maintenanceNextDate", Equals.notNull()),
-                        Condition.of("id", Equals.null_()))); // (3)
-        rules.content("maintenanceNextDate", Weekday.anyOrNull(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)); // (3)
-        rules.content("maintenanceNextDate", Equals.none(getFakedCompanyVacationDates())); // (3)
-        rules.update("maintenanceNextDate", Future.minMaxDays(1, 365),
-                        Condition.of("maintenanceNextDate", Value.changed()));
+                        Condition.of("maintenanceNextDate", Equals.notNull()))); // (3)
+        rules.content("maintenanceNextDate", Weekday.anyOrNull(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)); // (4)
+        rules.content("maintenanceNextDate", Equals.none(getFakedCompanyVacationDates())); // (4)
+        rules.content("maintenanceNextDate", Future.minMaxDaysOrNull(1, 365),
+                Condition.of("id", Equals.null_())); // (4)
+        rules.update("maintenanceNextDate", Future.minMaxDaysOrNull(1, 365),
+                Condition.of("maintenanceNextDate", Value.changed())); // (4)
 
         rules.content("category", Equals.anyOrNull(Category.values()));
         rules.mandatory("subCategory",
                 Condition.of("category", Equals.notNull()));
         rules.content("subCategory", Equals.anyRefOrNull("category.subCategories[*]"))
-                .doNotSerialize(); // (4)
+                .doNotSerialize(); // (5)
 
         rules.immutable("everLeftWarehouse",
                 Condition.of("everLeftWarehouse", Equals.any(TRUE)));
@@ -104,7 +100,7 @@ public final class Article implements ValidationRulesGettable<Article> {
                                 Condition.of("animalUse", Equals.any(TRUE)),
                                 Condition.of("everLeftWarehouse", Equals.any(TRUE))),
                         ConditionsGroup.AND(
-                                Condition.of("medicalSet", Equals.notNull())))); //(5)
+                                Condition.of("medicalSet", Equals.notNull())))); //(6)
 
         rules.content("accessories", Size.max(3),
                 Permissions.none(MANAGER),
@@ -118,12 +114,12 @@ public final class Article implements ValidationRulesGettable<Article> {
                 Permissions.none(MANAGER),
                 Condition.of("accessories", Size.min(4)));
 
-        rules.content("accessories[*].name", RegEx.any(EXAMPLE_UNICODE_PROPERTY_CLASSES_REGEX)); // (6)
+        rules.content("accessories[*].name", RegEx.any(EXAMPLE_UNICODE_PROPERTY_CLASSES_REGEX)); // (7)
         rules.content("accessories[*].name#distinct", Equals.any(true));
         rules.content("accessories[*].amount", Range.minMax(AMOUNT_MIN, AMOUNT_MAX));
-        rules.content("accessories[0/1].amount#sum", Range.max(AMOUNT_SUM_MAX)); // (7)
+        rules.content("accessories[0/1].amount#sum", Range.max(AMOUNT_SUM_MAX)); // (8)
 
-        rules.immutable("lastModifiedOn"); // (8)
+        rules.immutable("lastModifiedOn"); // (9)
     }
 
     private Integer id;
@@ -267,7 +263,7 @@ public final class Article implements ValidationRulesGettable<Article> {
         return rules;
     }
 
-    private static LocalDate[] getFakedCompanyVacationDates() {
+    protected static LocalDate[] getFakedCompanyVacationDates() {
         LocalDate today = LocalDate.now();
         List<LocalDate> augustDates = IntStream.rangeClosed(1, 31).boxed()
                 .map(i -> {
