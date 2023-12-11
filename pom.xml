@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>com.github.stephan-double-u</groupId>
 			<artifactId>cross-language-validation-java</artifactId>
-			<version>v0.11.0</version>
+			<version>v0.12.0</version>
 		</dependency>
 		<dependency>
 			<!-- transitive vulnerable dependency org.yaml:snakeyaml:1.33 irrelevant for this demo app -->
