@@ -213,12 +213,14 @@ function toggleShowFirstOrAllErrorsFlag() {
     validate();
 }
 
+const port = 8080;
+
 const putPermissions = async () => {
     userPerms.length = 0;
     if (perm1.checked) userPerms.push(perm1.name);
     if (perm2.checked) userPerms.push(perm2.name);
     console.info("putPermissions: %s", JSON.stringify(userPerms));
-    const response = await fetch('http://localhost:8080/user-permissions', {
+    const response = await fetch('http://localhost:' + port + '/user-permissions', {
         method: 'PUT',
         body: JSON.stringify(userPerms),
         headers: {
@@ -231,7 +233,7 @@ const putPermissions = async () => {
 const postArticle = async () => {
     toModel(editedArticle);
     console.info("postArticle: %s", JSON.stringify(editedArticle));
-    const response = await fetch('http://localhost:8080/article', {
+    const response = await fetch('http://localhost:' + port + '/article', {
         method: 'POST',
         body: JSON.stringify(editedArticle),
         headers: {
@@ -258,7 +260,7 @@ const postArticle = async () => {
 
 const putArticle = async () => {
     toModel(editedArticle);
-    const response = await fetch('http://localhost:8080/article', {
+    const response = await fetch('http://localhost:' + port + '/article', {
         method: 'PUT',
         body: JSON.stringify(editedArticle),
         headers: {
@@ -291,7 +293,7 @@ const loadArticle = async () => {
     if (articleId === null) {
         return;
     }
-    const response = await fetch('http://localhost:8080/article/' + articleId, {
+    const response = await fetch('http://localhost:' + port + '/article/' + articleId, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -318,7 +320,7 @@ const loadArticle = async () => {
 }
 
 const getValidationRules = async () => {
-    const response = await fetch('http://localhost:8080/validation-rules');
+    const response = await fetch('http://localhost:' + port + '/validation-rules');
     const rules = await response.json();
     setValidationRules(rules);
     document.querySelector('#rules').innerHTML = "Loaded rules:<br><code>" + htmlEncode(JSON.stringify(rules)) + "</code>";
@@ -330,7 +332,7 @@ function htmlEncode(str) {
 }
 
 const getValidationErrorCodeMap = async () => {
-    const response = await fetch('http://localhost:8080/validation-error-messages');
+    const response = await fetch('http://localhost:' + port + '/validation-error-messages');
     validationErrorCodeMap = await response.json();
     document.querySelector('#rules').innerHTML = "Error code to message mapping:<br><code>" +
         htmlEncode(JSON.stringify(validationErrorCodeMap)) + "</code>";
@@ -338,15 +340,15 @@ const getValidationErrorCodeMap = async () => {
 }
 
 const getCategoryMapping = async () => {
-    const response = await fetch('http://localhost:8080/category-mapping');
+    const response = await fetch('http://localhost:' + port + '/category-mapping');
     categoryMapping = await response.json();
 }
 
 function toggleAnimalUseImg() {
     if (animalUse.checked) {
-        document.querySelector('#animalUseImg').className = "visible";
+        document.querySelector('#animalUseImg').className = "img-visible";
     } else {
-        document.querySelector('#animalUseImg').className = "not-visible";
+        document.querySelector('#animalUseImg').className = "img-not-visible";
     }
 }
 
